@@ -17,15 +17,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.duckduckgo.mobile.android.views.SlidingTabLayout
-            android:layout_gravity="top"
-            android:layout_marginTop="56dp"
-            android:visibility="visible"
-            android:id="@+id/sliding_tabs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"/>
-
         <RelativeLayout
             android:id="@+id/searchBar"
             android:layout_width="match_parent"

@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -80,11 +79,8 @@ import com.duckduckgo.mobile.android.events.shareEvents.ShareFeedEvent;
 import com.duckduckgo.mobile.android.events.shareEvents.ShareSearchEvent;
 import com.duckduckgo.mobile.android.events.shareEvents.ShareWebPageEvent;
 import com.duckduckgo.mobile.android.fragment.AboutFragment;
-import com.duckduckgo.mobile.android.fragment.FavoriteFragment;
-import com.duckduckgo.mobile.android.fragment.FeedFragment;
 import com.duckduckgo.mobile.android.fragment.HelpFeedbackFragment;
 import com.duckduckgo.mobile.android.fragment.PrefFragment;
-import com.duckduckgo.mobile.android.fragment.RecentsFragment;
 import com.duckduckgo.mobile.android.fragment.SearchFragment;
 import com.duckduckgo.mobile.android.fragment.SourcesFragment;
 import com.duckduckgo.mobile.android.fragment.WebFragment;
@@ -97,7 +93,6 @@ import com.duckduckgo.mobile.android.util.DDGControlVar;
 import com.duckduckgo.mobile.android.util.DDGUtils;
 import com.duckduckgo.mobile.android.util.DisplayStats;
 import com.duckduckgo.mobile.android.util.PreferencesManager;
-import com.duckduckgo.mobile.android.util.ReadArticlesManager;
 import com.duckduckgo.mobile.android.util.SCREEN;
 import com.duckduckgo.mobile.android.util.SESSIONTYPE;
 import com.duckduckgo.mobile.android.util.Sharer;
@@ -401,25 +396,6 @@ public class DuckDuckGo extends AppCompatActivity {
         String tag = "";
 
 		switch(screenToDisplay) {
-			case SCR_STORIES:
-                DDGActionBarManager.getInstance().resetScreenState();
-                stopAction();
-
-                // ensures feed refresh every time user switches to Stories screen
-                DDGControlVar.hasUpdatedFeed = false;
-
-                displayFeedCore();
-
-                fragment = new FeedFragment();
-                tag = FeedFragment.TAG;
-				break;
-			case SCR_RECENTS:
-                DDGActionBarManager.getInstance().resetScreenState();
-
-                fragment = new RecentsFragment();
-                tag = RecentsFragment.TAG;
-
-				break;
             case SCR_WEBVIEW:
                 fragment = new WebFragment();
                 tag = WebFragment.TAG;
@@ -435,12 +411,6 @@ public class DuckDuckGo extends AppCompatActivity {
                 tag = SearchFragment.TAG_HOME_PAGE;
 
                 break;
-			case SCR_FAVORITE:
-                DDGActionBarManager.getInstance().resetScreenState();
-
-                fragment = new FavoriteFragment();
-                tag = FavoriteFragment.TAG;
-				break;
             case SCR_ABOUT:
 
                 fragment = new AboutFragment();
@@ -647,15 +617,6 @@ public class DuckDuckGo extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-            case R.id.action_stories:
-                actionStories();
-                return true;
-            case R.id.action_favorites:
-                actionFavorites();
-                return true;
-            case R.id.action_recents:
-                actionRecents();
-                return true;
             case R.id.action_settings:
                 actionSettings();
                 return true;
@@ -673,15 +634,6 @@ public class DuckDuckGo extends AppCompatActivity {
 
     private void onMenuItemClicked(MenuItem menuItem, FeedObject feed) {
         switch(menuItem.getItemId()) {
-            case R.id.action_stories:
-                actionStories();
-                break;
-            case R.id.action_favorites:
-                actionFavorites();
-                break;
-            case R.id.action_recents:
-                actionRecents();
-                break;
             case R.id.action_settings:
                 actionSettings();
                 break;
@@ -710,18 +662,6 @@ public class DuckDuckGo extends AppCompatActivity {
 
         }
 
-    }
-
-    private void actionStories() {
-        displayScreen(SCREEN.SCR_STORIES, true);
-    }
-
-    private void actionFavorites() {
-        displayScreen(SCREEN.SCR_FAVORITE, true);
-    }
-
-    private void actionRecents() {
-        displayScreen(SCREEN.SCR_RECENTS, true);
     }
 
     private void actionHelpFeedback(){

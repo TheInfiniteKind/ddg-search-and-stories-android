@@ -1,7 +1,7 @@
 package com.duckduckgo.mobile.android.util;
 
 public enum SCREEN {
-	SCR_STORIES(0), SCR_RECENTS(1), SCR_FAVORITE(2), SCR_SEARCH_HOME_PAGE(3), SCR_WEBVIEW(4), SCR_ABOUT(5), SCR_HELP(6), SCR_SETTINGS(7), SCR_SEARCH(8), SCR_SOURCES(9);
+	/*SCR_STORIES(0), SCR_RECENTS(1), SCR_FAVORITE(2), */SCR_SEARCH_HOME_PAGE(3), SCR_WEBVIEW(4), SCR_ABOUT(5), SCR_HELP(6), SCR_SETTINGS(7), SCR_SEARCH(8), SCR_SOURCES(9);
 	
 	private int code;
 	
@@ -14,13 +14,13 @@ public enum SCREEN {
 	}
 	
 	public static SCREEN getByCode(int code){
-		switch(code){
+		switch(code){/*
 			case 0:
 				return SCR_STORIES;
 			case 1:
 				return SCR_RECENTS;
 			case 2:
-				return SCR_FAVORITE;
+				return SCR_FAVORITE;*/
 			case 3:
                 return SCR_SEARCH_HOME_PAGE;
 			case 4:
@@ -36,7 +36,7 @@ public enum SCREEN {
             case 9:
                 return SCR_SOURCES;
 			default:
-				return SCR_STORIES;
+				return SCR_SEARCH_HOME_PAGE;//return SCR_STORIES;
 		}	
 			
 	}

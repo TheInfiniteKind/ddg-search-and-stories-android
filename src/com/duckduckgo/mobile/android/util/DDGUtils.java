@@ -47,17 +47,13 @@ import com.duckduckgo.mobile.android.DDGApplication;
 import com.duckduckgo.mobile.android.R;
 import com.duckduckgo.mobile.android.download.FileCache;
 import com.duckduckgo.mobile.android.fragment.AboutFragment;
-import com.duckduckgo.mobile.android.fragment.FavoriteFragment;
-import com.duckduckgo.mobile.android.fragment.FeedFragment;
 import com.duckduckgo.mobile.android.fragment.HelpFeedbackFragment;
 import com.duckduckgo.mobile.android.fragment.PrefFragment;
-import com.duckduckgo.mobile.android.fragment.RecentsFragment;
 import com.duckduckgo.mobile.android.fragment.SearchFragment;
 import com.duckduckgo.mobile.android.fragment.SourcesFragment;
 import com.duckduckgo.mobile.android.fragment.WebFragment;
 import com.duckduckgo.mobile.android.network.DDGHttpException;
 import com.duckduckgo.mobile.android.network.DDGNetworkConstants;
-import com.duckduckgo.mobile.android.views.webview.DDGWebView;
 
 /**
  * This class contains utility static methods, such as loading preferences as an array or decoding bitmaps.
@@ -437,11 +433,7 @@ public final class DDGUtils {
     }
 
     public static SCREEN getScreenByTag(String tag) {
-        if(tag.equals(RecentsFragment.TAG)) {
-            return SCREEN.SCR_RECENTS;
-        } else if(tag.equals(FavoriteFragment.TAG)) {
-            return SCREEN.SCR_FAVORITE;
-        } else if(tag.equals(WebFragment.TAG)) {
+        if(tag.equals(WebFragment.TAG)) {
             return SCREEN.SCR_WEBVIEW;
         } else if(tag.equals(SearchFragment.TAG)) {
             return SCREEN.SCR_SEARCH;
@@ -456,17 +448,11 @@ public final class DDGUtils {
         } else if(tag.equals(SourcesFragment.TAG)) {
             return SCREEN.SCR_SOURCES;
         }
-        return SCREEN.SCR_STORIES;
+		return SCREEN.SCR_SEARCH_HOME_PAGE;
     }
 
     public static String getTagByScreen(SCREEN screen) {
         switch(screen) {
-            case SCR_STORIES:
-                return FeedFragment.TAG;
-            case SCR_RECENTS:
-                return RecentsFragment.TAG;
-            case SCR_FAVORITE:
-                return FavoriteFragment.TAG;
             case SCR_WEBVIEW:
                 return WebFragment.TAG;
             case SCR_SEARCH:
@@ -482,7 +468,7 @@ public final class DDGUtils {
             case SCR_SOURCES:
                 return SourcesFragment.TAG;
             default:
-                return FeedFragment.TAG;
+				return SearchFragment.TAG_HOME_PAGE;
         }
     }
 

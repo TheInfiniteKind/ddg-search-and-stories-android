@@ -19,8 +19,8 @@ public class DuckDuckGoContainer {
     public String prevFragmentTag = "";
     public String currentUrl = "";
 	
-	public SCREEN currentScreen = SCREEN.SCR_STORIES;
-	public SCREEN prevScreen = SCREEN.SCR_STORIES;
+	public SCREEN currentScreen = SCREEN.SCR_SEARCH_HOME_PAGE;//SCREEN.SCR_STORIES;
+	public SCREEN prevScreen = SCREEN.SCR_SEARCH_HOME_PAGE;//SCREEN.SCR_STORIES;
 	
 	public Drawable /*progressDrawable, */searchFieldDrawable;
 	public Drawable stopDrawable;

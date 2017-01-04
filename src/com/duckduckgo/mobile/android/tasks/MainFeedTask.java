@@ -29,7 +29,6 @@ import com.duckduckgo.mobile.android.util.DDGConstants;
 import com.duckduckgo.mobile.android.util.DDGControlVar;
 import com.duckduckgo.mobile.android.util.PreferencesManager;
 import com.duckduckgo.mobile.android.util.REQUEST_TYPE;
-import com.duckduckgo.mobile.android.views.MainFeedListView;
 
 public class MainFeedTask extends AsyncTask<Void, Void, List<FeedObject>> {
 

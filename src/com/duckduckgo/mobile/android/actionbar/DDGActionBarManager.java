@@ -37,7 +37,6 @@ import com.duckduckgo.mobile.android.util.DDGUtils;
 import com.duckduckgo.mobile.android.util.SCREEN;
 import com.duckduckgo.mobile.android.util.SESSIONTYPE;
 import com.duckduckgo.mobile.android.views.DDGOverflowMenu;
-import com.duckduckgo.mobile.android.views.SlidingTabLayout;
 import com.duckduckgo.mobile.android.views.autocomplete.DDGAutoCompleteTextView;
 
 public final class DDGActionBarManager implements View.OnClickListener, View.OnLongClickListener {
@@ -60,9 +59,6 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
     private ProgressBarAnimation progressBarAnimation = null;
     private int oldProgress = 0;
     private boolean isProgressVisible = false;
-    private SlidingTabLayout slidingTabLayout;
-
-    private boolean isTabAnimating = false;
 
     private DDGOverflowMenu overflowMenu = null;
     private Menu mainMenu;
@@ -93,7 +89,6 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
         actionBarTitle = (TextView) toolbar.findViewById(R.id.actionbar_title);
         Typeface typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto_Medium.ttf");
         actionBarTitle.setTypeface(typeface);
-        slidingTabLayout = (SlidingTabLayout) toolbar.findViewById(R.id.sliding_tabs);
 
         progressBar = (ProgressBar) toolbar.findViewById(R.id.progress_bar);
 
@@ -117,10 +112,6 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
 
     public DDGAutoCompleteTextView getSearchField() {
         return this.searchField;
-    }
-
-    public SlidingTabLayout getSlidingTabLayout() {
-        return this.slidingTabLayout;
     }
 
     public Toolbar getToolbar() {
@@ -195,82 +186,6 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
         }
 
         switch(screen) {
-            case SCR_STORIES:
-                clearSearchBar();
-                showSearchField();
-
-                leftMargin = isStartingScreen ? standardMargin : actionButtonVisibleLeftMargin;
-                rightMargin = overflowVisibleRightMargin;
-
-                setActionBarMargins(leftMargin, standardMargin, rightMargin, standardMargin);
-
-                setHomeButton(!isStartingScreen);
-
-                setOverflowButton(true);
-                setOverflowButtonMarginTop(false);
-
-                setHomeButtonMarginTop(false);
-
-                setTabLayout(false);
-
-                setProgressBarVisible(false);
-
-                MenuItem feedItem = mainMenu.findItem(R.id.action_stories);
-                if(feedItem!=null) {
-                    feedItem.setEnabled(false);
-                }
-                break;
-            case SCR_RECENTS:
-
-               clearSearchBar();
-
-                showSearchField();
-
-                leftMargin = isStartingScreen ? standardMargin : actionButtonVisibleLeftMargin;
-                rightMargin = overflowVisibleRightMargin;
-
-                setActionBarMargins(leftMargin, standardMargin, rightMargin, standardMargin);
-
-                setOverflowButton(true);
-
-                setOverflowButtonMarginTop(false);
-
-                setHomeButton(!isStartingScreen);
-
-                setHomeButtonMarginTop(false);
-
-                setProgressBarVisible(false);
-
-                MenuItem recentItem = mainMenu.findItem(R.id.action_recents);
-                if(recentItem!=null) {
-                    recentItem.setEnabled(false);
-                }
-                break;
-            case SCR_FAVORITE:
-                clearSearchBar();
-
-                showSearchField();
-
-                leftMargin = isStartingScreen ? standardMargin : actionButtonVisibleLeftMargin;
-                rightMargin = overflowVisibleRightMargin;
-
-                setActionBarMargins(leftMargin, standardMargin, rightMargin, standardMargin);
-
-                setOverflowButton(true);
-
-                setOverflowButtonMarginTop(false);
-
-                setHomeButton(!isStartingScreen);
-
-                setHomeButtonMarginTop(false);
-
-                setProgressBarVisible(false);
-
-                MenuItem favoriteItem = mainMenu.findItem(R.id.action_favorites);
-                if(favoriteItem!=null) {
-                    favoriteItem.setEnabled(false);
-                }
-                break;
             case SCR_WEBVIEW:
                 showSearchField();
 
@@ -281,25 +196,17 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
                 setHomeButton(true);
                 setHomeButtonMarginTop(false);
 
-                setTabLayout(false);
-
                 setProgressBarVisible(true);
                 break;
             case SCR_SEARCH:
             case SCR_SEARCH_HOME_PAGE:
                 showSearchField();
-
                 rightMargin = overflowVisibleRightMargin;
                 setActionBarMargins(actionButtonVisibleLeftMargin, standardMargin, rightMargin, standardMargin);
-
                 setHomeButtonMarginTop(false);
                 setOverflowButton(true);
                 setOverflowButtonMarginTop(false);
-
                 setBangButton();
-
-                setTabLayout(false);
-
                 setProgressBarVisible(false);
                 break;
             case SCR_ABOUT:
@@ -308,9 +215,6 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
                 setOverflowButtonMarginTop(false);
                 setHomeButton(true);
                 setHomeButtonMarginTop(false);
-
-                setTabLayout(false);
-
                 setProgressBarVisible(false);
                 break;
             case SCR_HELP:
@@ -319,9 +223,6 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
                 setOverflowButtonMarginTop(false);
                 setHomeButton(true);
                 setHomeButtonMarginTop(false);
-
-                setTabLayout(false);
-
                 setProgressBarVisible(false);
                 break;
             case SCR_SETTINGS:
@@ -330,9 +231,6 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
                 setOverflowButtonMarginTop(false);
                 setHomeButton(true);
                 setHomeButtonMarginTop(false);
-
-                setTabLayout(false);
-
                 setProgressBarVisible(false);
                 break;
             case SCR_SOURCES:
@@ -341,9 +239,6 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
                 setOverflowButtonMarginTop(false);
                 setHomeButton(true);
                 setHomeButtonMarginTop(false);
-
-                setTabLayout(false);
-
                 setProgressBarVisible(false);
             default:
                 break;
@@ -545,126 +440,6 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
         final RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) toolbar.findViewById(R.id.overflow).getLayoutParams();
         int padding = visible ? (int) context.getResources().getDimension(R.dimen.actionbar_margin) : 0;
         params.topMargin = padding;
-    }
-
-    public void showTabLayout() {
-        setTabLayout(true);
-    }
-
-    private void setTabLayout(boolean visible) {
-        boolean gone = slidingTabLayout.getVisibility()==View.GONE;
-        if(visible) {
-            if(slidingTabLayout.getVisibility()==View.GONE) {
-                expandView(slidingTabLayout);
-            }
-        } else {
-            if(slidingTabLayout.getVisibility()==View.VISIBLE) {
-                collapseView(slidingTabLayout);
-            }
-        }
-    }
-
-    public boolean isTabAnimating() {
-        return isTabAnimating;
-    }
-
-    public void tryToShowTab() {
-        if(!isTabAnimating && slidingTabLayout.getVisibility()!=View.VISIBLE) {
-            expandView(slidingTabLayout);
-        }
-    }
-
-    public void tryToHideTab() {
-        if(!isTabAnimating && slidingTabLayout.getVisibility()!=View.GONE) {
-            collapseView(slidingTabLayout);
-        }
-    }
-
-    public void expandView(final View view) {
-        view.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        final int standardMargin = (int) context.getResources().getDimension(R.dimen.actionbar_height);
-        final int tabHeight = (int) context.getResources().getDimension(R.dimen.actionbar_tab_height2);
-        final int actualMargin = standardMargin - tabHeight;
-
-        view.setVisibility(View.VISIBLE);
-        Animation a = new Animation()
-        {
-            @Override
-            protected void applyTransformation(float interpolatedTime, Transformation t) {
-                ((FrameLayout.LayoutParams)view.getLayoutParams()).topMargin = interpolatedTime == 1
-                        ? standardMargin
-                        : (int) (actualMargin + (tabHeight * interpolatedTime));
-                view.requestLayout();
-            }
-
-            @Override
-            public boolean willChangeBounds() {
-                return true;
-            }
-        };
-
-        a.setDuration(250);
-        a.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                isTabAnimating = true;
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                isTabAnimating = false;
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        view.startAnimation(a);
-    }
-
-    public void collapseView(final View view) {
-        final int standardMargin = (int) context.getResources().getDimension(R.dimen.actionbar_height);
-        final int tabHeight = (int) context.getResources().getDimension(R.dimen.actionbar_tab_height2);
-
-        Animation a = new Animation()
-        {
-            @Override
-            protected void applyTransformation(float interpolatedTime, Transformation t) {
-                if(interpolatedTime == 1){
-                    view.setVisibility(View.GONE);
-                }else{
-                    ((FrameLayout.LayoutParams)view.getLayoutParams()).topMargin = standardMargin -(int)(tabHeight * interpolatedTime);
-                    view.requestLayout();
-                }
-            }
-
-            @Override
-            public boolean willChangeBounds() {
-                return true;
-            }
-        };
-
-        a.setDuration(250);
-        a.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                isTabAnimating = true;
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                isTabAnimating = false;
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        view.startAnimation(a);
-        view.getParent().requestLayout();
     }
 
     public void setSearchBarText(String text) {

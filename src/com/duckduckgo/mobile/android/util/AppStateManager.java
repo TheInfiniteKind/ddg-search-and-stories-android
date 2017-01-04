@@ -63,8 +63,8 @@ public class AppStateManager {
 			
 			DDGControlVar.homeScreenShowing = prefs.getBoolean("homeScreenShowing", false);
 			duckDuckGoContainer.webviewShowing = prefs.getBoolean("webviewShowing", false);
-			duckDuckGoContainer.currentScreen = SCREEN.getByCode(prefs.getInt("currentScreen", SCREEN.SCR_STORIES.getCode()));
-			duckDuckGoContainer.prevScreen = SCREEN.getByCode(prefs.getInt("prevScreen", SCREEN.SCR_STORIES.getCode()));
+			duckDuckGoContainer.currentScreen = SCREEN.getByCode(prefs.getInt("currentScreen", SCREEN.SCR_SEARCH_HOME_PAGE/*SCREEN.SCR_STORIES*/.getCode()));
+			duckDuckGoContainer.prevScreen = SCREEN.getByCode(prefs.getInt("prevScreen", SCREEN.SCR_SEARCH_HOME_PAGE/*SCREEN.SCR_STORIES*/.getCode()));
 			duckDuckGoContainer.sessionType = SESSIONTYPE.getByCode(prefs.getInt("sessionType", SESSIONTYPE.SESSION_BROWSE.getCode()));
 			duckDuckGoContainer.currentFragmentTag = prefs.getString("currentFragmentTag", "");
             duckDuckGoContainer.currentUrl = prefs.getString("currentUrl", "");
