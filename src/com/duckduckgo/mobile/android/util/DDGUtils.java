@@ -50,7 +50,6 @@ import com.duckduckgo.mobile.android.fragment.AboutFragment;
 import com.duckduckgo.mobile.android.fragment.HelpFeedbackFragment;
 import com.duckduckgo.mobile.android.fragment.PrefFragment;
 import com.duckduckgo.mobile.android.fragment.SearchFragment;
-import com.duckduckgo.mobile.android.fragment.SourcesFragment;
 import com.duckduckgo.mobile.android.fragment.WebFragment;
 import com.duckduckgo.mobile.android.network.DDGHttpException;
 import com.duckduckgo.mobile.android.network.DDGNetworkConstants;
@@ -445,8 +444,6 @@ public final class DDGUtils {
             return SCREEN.SCR_SETTINGS;
         } else  if(tag.equals(SearchFragment.TAG_HOME_PAGE)) {
             return SCREEN.SCR_SEARCH_HOME_PAGE;
-        } else if(tag.equals(SourcesFragment.TAG)) {
-            return SCREEN.SCR_SOURCES;
         }
 		return SCREEN.SCR_SEARCH_HOME_PAGE;
     }
@@ -465,8 +462,6 @@ public final class DDGUtils {
                 return PrefFragment.TAG;
             case SCR_SEARCH_HOME_PAGE:
                 return SearchFragment.TAG_HOME_PAGE;
-            case SCR_SOURCES:
-                return SourcesFragment.TAG;
             default:
 				return SearchFragment.TAG_HOME_PAGE;
         }

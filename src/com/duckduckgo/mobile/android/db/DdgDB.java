@@ -3,21 +3,16 @@ package com.duckduckgo.mobile.android.db;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.database.sqlite.SQLiteStatement;
-import android.util.Log;
 
 import com.duckduckgo.mobile.android.DDGApplication;
-import com.duckduckgo.mobile.android.objects.FeedObject;
 import com.duckduckgo.mobile.android.objects.history.HistoryObject;
 import com.duckduckgo.mobile.android.util.AppShortInfo;
 import com.duckduckgo.mobile.android.util.DDGUtils;
@@ -60,98 +55,6 @@ public class DdgDB {
 		this.db.delete(DdgDBContracts.SAVED_SEARCH_TABLE.TABLE_NAME, DdgDBContracts.SAVED_SEARCH_TABLE.COLUMN_QUERY + "=?", new String[]{query});
 		return this.db.insert(DdgDBContracts.SAVED_SEARCH_TABLE.TABLE_NAME, null, contentValues);
 	}
-	
-	/**
-	 * insert a FeedObject to SQLite database
-	 * for feed items, the existing FeedObject is saved.
-	 * for ordinary webpages (including SERP), (url, title) pair is received here.
-	 * 
-	 * if title == null (happens often e.g. pages only containing an image), URL is used for title field.
-	 *   
-	 * 
-	 * @param e
-	 * @return if FeedObject(url,title) both null, return -1. Return Insert execution result otherwise
-	 */
-	//public long insert(FeedObject e, String hidden) {
-    public long insert(FeedObject e, String hidden, String favorite) {
-		String title = e.getTitle();		
-		String url = e.getUrl();
-		if(url == null || url.length() == 0)
-			return -1l;
-		
-		if(title == null) {
-			title = e.getUrl();
-		}
-		
-		ContentValues contentValues = new ContentValues();
-		contentValues.put(DdgDBContracts.FEED_TABLE._ID, e.getId());
-		Log.v("insert", e.getId());
-		contentValues.put(DdgDBContracts.FEED_TABLE.COLUMN_TITLE, title);
-		Log.v("insert", title);
-		contentValues.put(DdgDBContracts.FEED_TABLE.COLUMN_DESCRIPTION, e.getDescription());
-		Log.v("insert", e.getDescription());
-		contentValues.put(DdgDBContracts.FEED_TABLE.COLUMN_FEED, e.getFeed());
-		Log.v("insert", e.getFeed());
-		contentValues.put(DdgDBContracts.FEED_TABLE.COLUMN_URL, e.getUrl());
-		Log.v("insert", e.getUrl());
-		contentValues.put(DdgDBContracts.FEED_TABLE.COLUMN_IMAGE_URL, e.getImageUrl());
-		Log.v("insert", e.getImageUrl());
-		contentValues.put(DdgDBContracts.FEED_TABLE.COLUMN_FAVICON, e.getFavicon());
-		Log.v("insert", e.getFavicon());
-		contentValues.put(DdgDBContracts.FEED_TABLE.COLUMN_TIMESTAMP, e.getTimestamp());
-		Log.v("insert", e.getTimestamp());
-		contentValues.put(DdgDBContracts.FEED_TABLE.COLUMN_CATEGORY, e.getCategory());
-		Log.v("insert", e.getCategory());
-		contentValues.put(DdgDBContracts.FEED_TABLE.COLUMN_TYPE, e.getType());
-		Log.v("insert", e.getType());
-		contentValues.put(DdgDBContracts.FEED_TABLE.COLUMN_ARTICLE_URL, e.getArticleUrl());
-		Log.v("insert", e.getArticleUrl());
-		contentValues.put(DdgDBContracts.FEED_TABLE.COLUMN_HIDDEN, hidden);
-		Log.v("insert", hidden);
-        contentValues.put(DdgDBContracts.FEED_TABLE.COLUMN_FAVORITE, favorite);
-        Log.v("insert", favorite);
-		long result = this.db.insert(DdgDBContracts.FEED_TABLE.TABLE_NAME, null, contentValues);
-		return result;
-	}
-	
-	/**
-	 * Insert feed item, using visibility setting from the object itself
-	 * @param e feed item
-	 * @return
-	 */
-	public long insert(FeedObject e) {
-		// hidden = False, F
-		return this.insert(e, e.getHidden(), "F");
-	}
-	
-	/**
-	 * Ordinary item Save operation - keep Saved item VISIBLE  
-	 * @param e
-	 * @return
-	 *//*
-	public long insertVisible(FeedObject e) {
-		// hidden = False, F
-		return this.insert(e, "F");
-	}*/
-
-    public long insertFavorite(FeedObject e) {
-        return this.insert(e, "F", String.valueOf(System.currentTimeMillis()));
-    }
-	
-	/**
-	 * default item Save for browsed feed items - HIDDEN
-	 * when Save is used this will become VISIBLE 
-	 * @param e
-	 * @return
-	 *//*
-	public long insertHidden(FeedObject e) {
-		// hidden = True, T
-		return this.insert(e, "T");
-	}*/
-
-    public long insertUnfavorite(FeedObject e) {
-        return this.insert(e, "T", "F");
-    }
 	
 	public long insertApp(AppShortInfo appInfo) {
 	      this.insertStmtApp.bindString(1, appInfo.name);
@@ -219,69 +122,12 @@ public class DdgDB {
 		return -1l;
 	}
 	
-	public long insertFeedItem(FeedObject feedObject) {
-		this.deleteFeedObject(feedObject);
-		long res = this.insert(feedObject);
-		long resHistory = insertFeedItemToHistory(feedObject.getTitle(), feedObject.getUrl(), feedObject.getType(), feedObject.getId());
-		if(res == -1l)
-			res = resHistory;
-        return res;
-	}
-	
-	/**
-	 * make a hidden feed item VISIBLE
-	 * @param feedObject
-	 * @return
-	 *//*
-	public long makeItemVisible(String id) {
-	      ContentValues args = new ContentValues();
-	      args.put("hidden", "F");
-		return this.db.update(DdgDBContracts.FEED_TABLE.TABLE_NAME, args, "_id=?", new String[]{id});
-	}*/
-
-    public long makeItemFavorite(String id) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("favorite", String.valueOf(System.currentTimeMillis()));
-		return this.db.update(DdgDBContracts.FEED_TABLE.TABLE_NAME, contentValues, DdgDBContracts.FEED_TABLE._ID + "=?", new String[]{id});
-	}
-	
-	/**
-	 * make a hidden feed item VISIBLE
-	 * @param feedObject
-	 * @return
-	 *//*
-	public long makeItemHidden(String id) {
-	      ContentValues args = new ContentValues();
-	      args.put("hidden", "T");
-		return this.db.update(DdgDBContracts.FEED_TABLE.TABLE_NAME, args, "_id=?", new String[]{id});
-	}*/
-
-    public long makeItemUnfavorite(String id) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("favorite", "F");
-		return this.db.update(DdgDBContracts.FEED_TABLE.TABLE_NAME, contentValues, DdgDBContracts.FEED_TABLE._ID + "=?", new String[]{id});
-	}
-	
 	public void deleteApps() {
 	      this.db.delete(DdgDBContracts.APP_TABLE.TABLE_NAME, null, null);
 	}
 	
 	public void deleteHistory() {
 	      this.db.delete(DdgDBContracts.HISTORY_TABLE.TABLE_NAME, null, null);
-	}
-	
-//	public long update(FeedObject e) {
-//	      ContentValues args = new ContentValues();
-//	      args.put("text", e.text);
-//	      return this.db.update(DdgDBContracts.FEED_TABLE.TABLE_NAME, args, "id=" + String.valueOf(e.id), null);
-//	}
-
-	public void deleteAll() {
-	      this.db.delete(DdgDBContracts.FEED_TABLE.TABLE_NAME, null, null);
-	}
-	
-	public int deleteFeedObject(FeedObject object) {
-		return this.db.delete(DdgDBContracts.FEED_TABLE.TABLE_NAME, DdgDBContracts.FEED_TABLE._ID + "=?", new String[]{object.getId()});
 	}
 	
 	public int deleteSavedSearch(String query) {
@@ -294,22 +140,6 @@ public class DdgDB {
 	
 	public int deleteHistoryByFeedId(String feedId) {
 		return this.db.delete(DdgDBContracts.HISTORY_TABLE.TABLE_NAME, DdgDBContracts.HISTORY_TABLE.COLUMN_FEED_ID + "=?", new String[]{feedId});
-	}
-	
-	private FeedObject getFeedObject(Cursor c) {
-		final String id = c.getString(c.getColumnIndex(DdgDBContracts.FEED_TABLE._ID));
-		final String title = c.getString(c.getColumnIndex(DdgDBContracts.FEED_TABLE.COLUMN_TITLE));
-		final String description = c.getString(c.getColumnIndex(DdgDBContracts.FEED_TABLE.COLUMN_DESCRIPTION));
-		final String feed = c.getString(c.getColumnIndex(DdgDBContracts.FEED_TABLE.COLUMN_FEED));
-		final String url = c.getString(c.getColumnIndex(DdgDBContracts.FEED_TABLE.COLUMN_URL));
-		final String imageurl = c.getString(c.getColumnIndex(DdgDBContracts.FEED_TABLE.COLUMN_IMAGE_URL));
-		final String favicon = c.getString(c.getColumnIndex(DdgDBContracts.FEED_TABLE.COLUMN_FAVICON));
-		final String timestamp = c.getString(c.getColumnIndex(DdgDBContracts.FEED_TABLE.COLUMN_TIMESTAMP));
-		final String category = c.getString(c.getColumnIndex(DdgDBContracts.FEED_TABLE.COLUMN_CATEGORY));
-		final String type = c.getString(c.getColumnIndex(DdgDBContracts.FEED_TABLE.COLUMN_TYPE));
-		final String articleurl = c.getString(c.getColumnIndex(DdgDBContracts.FEED_TABLE.COLUMN_ARTICLE_URL));
-		final String hidden = c.getString(c.getColumnIndex(DdgDBContracts.FEED_TABLE.COLUMN_HIDDEN));
-		return new FeedObject(id, title, description, feed, url, imageurl, favicon, timestamp, category, type, articleurl, "", hidden);
 	}
 	
 	private AppShortInfo getAppShortInfo(Cursor c) {
@@ -339,49 +169,8 @@ public class DdgDB {
 		return apps;
 	}
 	
-	public ArrayList<FeedObject> selectAll(){
-		ArrayList<FeedObject> feeds = null;
-		Cursor c = null;
-		try {
-			c = this.db.query(DdgDBContracts.FEED_TABLE.TABLE_NAME, null, null, null , null, null, null);
-			if(c.moveToFirst()) {
-				feeds = new ArrayList<FeedObject>(30);
-				do {
-					feeds.add(getFeedObject(c));
-				} while(c.moveToNext());
-			}
-		} finally {
-			if(c!=null) {
-				c.close();
-			}
-		}
-		return feeds;
-	}
-	
-	/**
-	 * for checking feed items
-	 * @param id
-	 * @return
-	 */
-	public boolean isSaved(String id) {
-        boolean out = false;
-        Cursor c = null;
-        try {
-            //Cursor c = this.db.query(DdgDBContracts.FEED_TABLE.TABLE_NAME, null, "_id=? AND hidden='F'", new String[]{id} , null, null, null);
-			c = this.db.query(DdgDBContracts.FEED_TABLE.TABLE_NAME, null, DdgDBContracts.FEED_TABLE._ID + "=? AND " + DdgDBContracts.FEED_TABLE.COLUMN_FAVORITE + "!='F'", new String[]{id}, null, null, null);
-			out = c.moveToFirst();
-        } finally {
-            if(c!=null) {
-                c.close();
-            }
-        }
-		return out;
-	}
-	
 	/**
 	 * for checking saved results
-	 * @param id
-	 * @return
 	 */
 	public boolean isSavedSearch(String query) {
 		if(query == null) {
@@ -431,9 +220,6 @@ public class DdgDB {
 	
 	/**
 	 * for checking ordinary web pages
-	 * @param pageTitle
-	 * @param pageUrl
-	 * @return
 	 */
 	public boolean isSavedInHistory(String data, String url) {
 		if(url == null) {
@@ -475,168 +261,6 @@ public class DdgDB {
         return out;
 	}
 	
-	public FeedObject selectFeedById(String id){
-        FeedObject out = null;
-        Cursor c = null;
-        try {
-			c = this.db.query(DdgDBContracts.FEED_TABLE.TABLE_NAME, null, DdgDBContracts.FEED_TABLE._ID + "=?", new String[]{id}, null, null, null);
-			if (c.moveToFirst()) {
-                out = getFeedObject(c);
-            }
-        } finally {
-            if(c!=null) {
-                c.close();
-            }
-        }
-		return out;
-	}
-	/*
-	public boolean existsVisibleFeedById(String id){
-		Cursor c = this.db.query(DdgDBContracts.FEED_TABLE.TABLE_NAME, new String[]{"_id"}, "_id=? AND hidden='F'", new String[]{id} , null, null, null);
-		if(c.moveToFirst()) {
-			return true;
-		}
-		return false;
-	}*/
-
-    public boolean existsFavoriteFeedById(String id) {
-        boolean out = false;
-        Cursor c = null;
-        try {
-			c = this.db.query(DdgDBContracts.FEED_TABLE.TABLE_NAME, new String[]{DdgDBContracts.FEED_TABLE._ID}, DdgDBContracts.FEED_TABLE._ID + "=? AND " + DdgDBContracts.FEED_TABLE.COLUMN_FAVORITE + "!='F'", new String[]{id}, null, null, null);
-			out = c.moveToFirst();
-        } finally {
-            if(c!=null) {
-                c.close();
-            }
-        }
-        return out;
-    }
-	
-	public boolean existsAllFeedById(String id){
-        boolean out = false;
-        Cursor c = null;
-        try {
-			c = this.db.query(DdgDBContracts.FEED_TABLE.TABLE_NAME, new String[]{DdgDBContracts.FEED_TABLE._ID}, DdgDBContracts.FEED_TABLE._ID + "=?", new String[]{id}, null, null, null);
-			out = c.moveToFirst();
-        } finally {
-            if(c!=null) {
-                c.close();
-            }
-        }
-        return out;
-	}
-	
-	public FeedObject selectById(String id){
-        FeedObject out = null;
-        Cursor c = null;
-        try {
-            //Cursor c = this.db.query(DdgDBContracts.FEED_TABLE.TABLE_NAME, null, "_id=? AND hidden='F'", new String[]{id} , null, null, null);
-			c = this.db.query(DdgDBContracts.FEED_TABLE.TABLE_NAME, null, DdgDBContracts.FEED_TABLE._ID + "=? AND " + DdgDBContracts.FEED_TABLE.COLUMN_FAVORITE + "!='F'", new String[]{id}, null, null, null);
-			if (c.moveToFirst()) {
-                out = getFeedObject(c);
-            }
-        } finally {
-            if(c!=null) {
-                c.close();
-            }
-        }
-		return out;
-	}
-	
-	public FeedObject selectHiddenById(String id){
-        FeedObject out = null;
-        Cursor c = null;
-        try {
-			c = this.db.query(DdgDBContracts.FEED_TABLE.TABLE_NAME, null, DdgDBContracts.FEED_TABLE._ID + "=? AND " + DdgDBContracts.FEED_TABLE.COLUMN_HIDDEN + "='T'", new String[]{id}, null, null, null);
-			if (c.moveToFirst()) {
-                out = getFeedObject(c);
-            }
-        } finally {
-            if(c!=null) {
-                c.close();
-            }
-        }
-		return out;
-	}
-	
-	public FeedObject selectByIdType(String id, String type){
-        FeedObject out = null;
-        Cursor c = null;
-        try {
-            //Cursor c = this.db.query(DdgDBContracts.FEED_TABLE.TABLE_NAME, null, "_id=? AND type = ? AND hidden='F'", new String[]{id,type} , null, null, null);
-			c = this.db.query(DdgDBContracts.FEED_TABLE.TABLE_NAME, null, DdgDBContracts.FEED_TABLE._ID + "=? AND " + DdgDBContracts.FEED_TABLE.COLUMN_TYPE + " = ? AND " + DdgDBContracts.FEED_TABLE.COLUMN_FAVORITE + "!='F'", new String[]{id, type}, null, null, null);
-			if (c.moveToFirst()) {
-                out = getFeedObject(c);
-            }
-        } finally {
-            if(c!=null) {
-                c.close();
-            }
-        }
-		return out;
-	}
-	
-	public ArrayList<FeedObject> selectByType(String type){
-		if(type == null) {
-			return null;
-		}
-		
-		ArrayList<FeedObject> feeds = new ArrayList<FeedObject>(20);
-		//Cursor c = this.db.query(DdgDBContracts.FEED_TABLE.TABLE_NAME, null, "type = ? AND hidden='F'", new String[]{type}, null, null, null, null);
-		Cursor c = this.db.query(DdgDBContracts.FEED_TABLE.TABLE_NAME, null, DdgDBContracts.FEED_TABLE.COLUMN_TYPE + " = ? AND " + DdgDBContracts.FEED_TABLE.COLUMN_FAVORITE + "!='F'", new String[]{type}, null, null, null, null);
-		if (c.moveToFirst()) {
-			do {
-				FeedObject e = getFeedObject(c);
-				feeds.add(e);
-			} while (c.moveToNext());
-		}
-		if (c != null && !c.isClosed()) {
-			c.close();
-		}
-		
-		if(feeds.isEmpty()){
-			return null;
-		}
-
-		return feeds;
-	}
-	
-	public ArrayList<FeedObject> selectByType(Set<String> types){
-		if(types == null || types.isEmpty()) {
-			return null;
-		}
-		
-		ArrayList<FeedObject> feeds = new ArrayList<FeedObject>(20);
-		
-		String query = "";
-		if(types.size() > 1) {
-			for(int i=0;i<types.size()-1;i++) {
-				query += DdgDBContracts.FEED_TABLE.COLUMN_TYPE + " = ? OR ";
-			}
-		}
-		query += DdgDBContracts.FEED_TABLE.COLUMN_TYPE + " = ?";
-		
-		String[] typeArray = (String[]) types.toArray(new String[types.size()]);
-		
-		Cursor c = this.db.query(DdgDBContracts.FEED_TABLE.TABLE_NAME, null, query, typeArray, null, null, null, null);
-		if (c.moveToFirst()) {
-			do {
-				FeedObject e = getFeedObject(c);
-				feeds.add(e);
-			} while (c.moveToNext());
-		}
-		if (c != null && !c.isClosed()) {
-			c.close();
-		}
-		
-		if(feeds.isEmpty()){
-			return null;
-		}
-
-		return feeds;
-	}
-	
 	public ArrayList<HistoryObject> selectHistory(){
 		Cursor c = this.db.query(DdgDBContracts.HISTORY_TABLE.TABLE_NAME, null, null, null , null, null, null);
         ArrayList<HistoryObject> historyItems = null;
@@ -650,32 +274,6 @@ public class DdgDB {
 		
 		return historyItems;
 	}
-
-    public ArrayList<FeedObject> getAllRecentFeed() {
-        ArrayList<FeedObject> recentFeeds = new ArrayList<FeedObject>();
-        Cursor cursor = getCursorRecentFeed();
-        if(cursor.moveToFirst()) {
-            do {
-                FeedObject feed = new FeedObject((SQLiteCursor)cursor);
-                recentFeeds.add(feed);
-            } while(cursor.moveToNext());
-        }
-        cursor.close();
-        return recentFeeds;
-    }
-
-    public ArrayList<FeedObject> getAllFavoriteFeed() {
-        ArrayList<FeedObject> favoriteFeeds = new ArrayList<FeedObject>();
-        Cursor cursor = getCursorStoryFeed();
-        if(cursor.moveToFirst()) {
-            do {
-                FeedObject feed = new FeedObject((SQLiteCursor)cursor);
-                favoriteFeeds.add(feed);
-            } while(cursor.moveToNext());
-        }
-        cursor.close();
-        return favoriteFeeds;
-    }
 	
 	public Cursor getCursorSearchHistory() {
 		return this.db.query(DdgDBContracts.HISTORY_TABLE.TABLE_NAME, null, DdgDBContracts.HISTORY_TABLE.COLUMN_TYPE + "='R'", null, null, null, DdgDBContracts.HISTORY_TABLE._ID + " DESC");
@@ -700,19 +298,6 @@ public class DdgDB {
 	public Cursor getCursorSavedSearch() {
 		return this.db.query(DdgDBContracts.SAVED_SEARCH_TABLE.TABLE_NAME, null, null, null, null, null, DdgDBContracts.SAVED_SEARCH_TABLE._ID + " DESC");
 	}
-	
-	public Cursor getCursorStoryFeed() {
-		//return this.db.query(DdgDBContracts.FEED_TABLE.TABLE_NAME, null, "NOT feed='' AND hidden='F'", null , null, null, null);
-		return this.db.query(DdgDBContracts.FEED_TABLE.TABLE_NAME, null, "NOT " + DdgDBContracts.FEED_TABLE.COLUMN_FEED + "='' AND " + DdgDBContracts.FEED_TABLE.COLUMN_FAVORITE + "!='F'", null, null, null, DdgDBContracts.FEED_TABLE.COLUMN_FAVORITE + " DESC");
-	}
-
-    public Cursor getCursorRecentFeed() {
-        SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-		builder.setTables(DdgDBContracts.HISTORY_TABLE.TABLE_NAME + " inner join " + DdgDBContracts.FEED_TABLE.TABLE_NAME + " ON " + DdgDBContracts.HISTORY_TABLE.TABLE_NAME + "." + DdgDBContracts.HISTORY_TABLE.COLUMN_FEED_ID + " = " + DdgDBContracts.FEED_TABLE.TABLE_NAME + "." + DdgDBContracts.FEED_TABLE._ID);
-		return builder.query(this.db, null, null, null, null, null, DdgDBContracts.HISTORY_TABLE.TABLE_NAME + "." + DdgDBContracts.HISTORY_TABLE._ID + " DESC");
-
-        //return this.db.rawQuery("select * from "+DdgDBContracts.FEED_TABLE.TABLE_NAME+", "+DdgDBContracts.HISTORY_TABLE.TABLE_NAME+" where "+DdgDBContracts.HISTORY_TABLE.TABLE_NAME+".feedId = "+DdgDBContracts.FEED_TABLE.TABLE_NAME+"._id order by "+DdgDBContracts.HISTORY_TABLE.TABLE_NAME+"._id DESC", null);
-    }
 	
 	
 	private static class OpenHelper extends SQLiteOpenHelper {

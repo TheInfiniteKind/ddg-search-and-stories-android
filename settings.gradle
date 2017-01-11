@@ -1,3 +1,2 @@
 include ':libs:OnionKit:libnetcipher'
-include ':libs:android-support-v4-preferencefragment'
-include ':libs:appcompat'
+//include ':libs:android-support-v4-preferencefragment'

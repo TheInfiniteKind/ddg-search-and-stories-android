@@ -8,10 +8,10 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 public class KeyboardService {
-    private final Activity activity;
+    //private final Activity activity;
 
     public KeyboardService(Activity activity) {
-        this.activity = activity;
+        //this.activity = activity;
     }
 
     public void hideKeyboardDelayed(final View view){
@@ -24,16 +24,16 @@ public class KeyboardService {
     }
 
     public void hideKeyboard(final View view) {
-        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        //activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     public void showKeyboard(final View view) {
-        view.requestFocus();
-        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        //view.requestFocus();
+        //activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
-        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(view, 0);
     }
 }

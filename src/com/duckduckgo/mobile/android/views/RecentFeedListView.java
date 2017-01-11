@@ -10,13 +10,9 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.duckduckgo.mobile.android.DDGApplication;
 import com.duckduckgo.mobile.android.bus.BusProvider;
 import com.duckduckgo.mobile.android.events.HistoryItemLongClickEvent;
 import com.duckduckgo.mobile.android.events.HistoryItemSelectedEvent;
-import com.duckduckgo.mobile.android.events.feedEvents.MainFeedItemSelectedEvent;
-import com.duckduckgo.mobile.android.events.feedEvents.SavedFeedItemLongClickEvent;
-import com.duckduckgo.mobile.android.objects.FeedObject;
 import com.duckduckgo.mobile.android.objects.history.HistoryObject;
 
 public class RecentFeedListView extends ListView implements android.widget.AdapterView.OnItemClickListener{//}, android.widget.AdapterView.OnItemLongClickListener {

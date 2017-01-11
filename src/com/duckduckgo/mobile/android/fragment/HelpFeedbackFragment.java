@@ -4,8 +4,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.support.v4.preference.PreferenceFragment;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceFragmentCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +16,7 @@ import com.duckduckgo.mobile.android.events.RequestOpenWebPageEvent;
 import com.duckduckgo.mobile.android.util.DDGUtils;
 import com.duckduckgo.mobile.android.util.SESSIONTYPE;
 
-public class HelpFeedbackFragment extends PreferenceFragment implements Preference.OnPreferenceClickListener {
+public class HelpFeedbackFragment extends PreferenceFragmentCompat implements Preference.OnPreferenceClickListener {
 
     public static final String TAG = "help_feedback_fragment";
 
@@ -25,9 +25,13 @@ public class HelpFeedbackFragment extends PreferenceFragment implements Preferen
     private Preference rate;
 
     @Override
+    public void onCreatePreferences(Bundle bundle, String s) {
+        addPreferencesFromResource(R.xml.help_feedback);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.help_feedback);
     }
 
     @Override

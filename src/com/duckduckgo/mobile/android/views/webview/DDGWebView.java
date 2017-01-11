@@ -6,19 +6,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.WebBackForwardList;
 import android.webkit.WebHistoryItem;
 import android.webkit.WebView;
 
-import com.duckduckgo.mobile.android.activity.DuckDuckGo;
 import com.duckduckgo.mobile.android.bus.BusProvider;
-import com.duckduckgo.mobile.android.events.DisplayScreenEvent;
 import com.duckduckgo.mobile.android.events.RemoveWebFragmentEvent;
 import com.duckduckgo.mobile.android.events.StopActionEvent;
-import com.duckduckgo.mobile.android.objects.FeedObject;
 import com.duckduckgo.mobile.android.util.DDGConstants;
 import com.duckduckgo.mobile.android.util.DDGControlVar;
 import com.duckduckgo.mobile.android.util.PreferencesManager;
@@ -26,18 +22,18 @@ import com.duckduckgo.mobile.android.util.PreferencesManager;
 public class DDGWebView extends WebView {
 
     public static final String ABOUT_BLANK = "about:blank";
-    public boolean isReadable = false;
-	private boolean forceOriginalFormat = false;
+    //public boolean isReadable = false;
+	//private boolean forceOriginalFormat = false;
 		
-	private HashSet<String> readableList = new HashSet<String>();
+	//private HashSet<String> readableList = new HashSet<String>();
 	
 	private DDGWebViewClient webViewClient = null;
 	private DDGWebChromeClient webChromeClient = null;
-	private Activity activity;
+	//private Activity activity;
 	
-	public boolean readableBackState = false;
-    public boolean readableForwardState = false;
-	public boolean loadingReadableBack = false;
+	//public boolean readableBackState = false;
+    //public boolean readableForwardState = false;
+	//public boolean loadingReadableBack = false;
 	
 	public boolean shouldClearHistory = false;
 
@@ -69,10 +65,12 @@ public class DDGWebView extends WebView {
 	public DDGWebChromeClient getWebChromeClient() {
 		return webChromeClient;
 	}
-	
+
+	/*
 	public void setIsReadable(boolean isReadable) {
 		this.isReadable = isReadable;
 	}
+	*/
 	
 	public void onWindowVisibilityChanged(int visibility)
 	       {super.onWindowVisibilityChanged(visibility);
@@ -129,7 +127,7 @@ public class DDGWebView extends WebView {
         }
         setUserAgentString(url);
         super.loadUrl(url);
-    }
+    }/*
 	
 	@Override
 	public WebBackForwardList saveState(Bundle outState) {
@@ -141,17 +139,7 @@ public class DDGWebView extends WebView {
 	public WebBackForwardList restoreState(Bundle inState) {
 		isReadable = inState.getBoolean("isReadable");
 		return super.restoreState(inState);
-	}
-	
-//	public void onDetachedFromWindow()
-//	       {//this will be trigger when back key pressed, not when home key pressed
-//	        if (this.is_gone)
-//	           {try
-//	               {this.destroy();
-//	               }
-//	            catch (Exception e) {}
-//	           }
-//	       }
+	}*//*
 
 	
 	public void readableAction(FeedObject feedObject) {
@@ -171,15 +159,15 @@ public class DDGWebView extends WebView {
     public void readableActonForward(FeedObject feedObject) {
         readableForwardState = true;
         goForward();
-    }
+    }*/
 	
 	/**
 	 * Whether original format of the web page is required (no readability)
 	 * @return true if original format is required, false otherwise 
-	 */
+	 *//*
 	public boolean isOriginalRequired() {
 		return forceOriginalFormat;
-	}
+	}*//*
 	
 	public void clearReadabilityState() {
 		isReadable = false;
@@ -188,12 +176,12 @@ public class DDGWebView extends WebView {
 		readableBackState = false;
         readableForwardState = false;
 		loadingReadableBack = false;
-	}
+	}*//*
 	
 	public void forceOriginal() {
 		isReadable = false;
 		forceOriginalFormat = true;
-	}
+	}*/
 	
 	public void clearBrowserState() {		
 		stopLoading();
@@ -201,7 +189,7 @@ public class DDGWebView extends WebView {
         clearViewReliably();
         shouldClearHistory = true;
 		
-		clearReadabilityState();
+		//clearReadabilityState();
 	}
 
     /**
@@ -212,9 +200,10 @@ public class DDGWebView extends WebView {
         loadUrl(ABOUT_BLANK);
     }
 
+	/*
     public void setParentActivity(Activity activity) {
 		this.activity = activity;
-	}
+	}*/
 	
 	public void backPressAction(boolean toHomeScreen) {
 		WebBackForwardList history = copyBackForwardList();
@@ -234,14 +223,15 @@ public class DDGWebView extends WebView {
 						BusProvider.getInstance().post(new RemoveWebFragmentEvent());//DisplayScreenEvent(DDGControlVar.mDuckDuckGoContainer.prevScreen, false));
                     }
                     return;
-                }
+                }/*
 				if(readableList.contains(prevUrl) && canDoReadability(prevUrl) && DDGControlVar.currentFeedObject != null) {
 //					readableAction(activity.currentFeedObject);
 					readableActionBack(DDGControlVar.currentFeedObject);
 				}
 				else {
 					goBack();
-				}
+				}*/
+				goBack();
 			}
 			else {
 				goBack();
@@ -269,14 +259,14 @@ public class DDGWebView extends WebView {
                 }
             }
         }
-    }
+    }/*
 
 	private boolean canDoReadability(String articleUrl) {
 		return PreferencesManager.getReadable() 
 				&& !isOriginalRequired()
 				&& articleUrl != null
 				&& articleUrl.length() != 0;
-	}
+	}*/
 
     public static void clearCookies() {
         CookieManager.getInstance().removeAllCookie();

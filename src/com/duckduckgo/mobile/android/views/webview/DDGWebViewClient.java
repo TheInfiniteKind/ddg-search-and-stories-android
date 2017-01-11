@@ -91,20 +91,12 @@ public class DDGWebViewClient extends WebViewClient {
         view.getSettings().setPluginState(PluginState.ON_DEMAND);
 		
 		DDGWebView wv = ((DDGWebView) view);
-		if(wv.loadingReadableBack) {
-			wv.stopLoading();	
-			return;
-		}
-				        		
-		if(url.equals(DDGControlVar.mDuckDuckGoContainer.lastFeedUrl)) {
-			DDGControlVar.mDuckDuckGoContainer.sessionType = SESSIONTYPE.SESSION_FEED;
-		}
 
 		// Omnibar like behavior.
 		if (url.contains("duckduckgo.com")) {
 
 	        view.getSettings().setSupportZoom(true);
-	        view.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
+	        //view.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
 	        view.getSettings().setBuiltInZoomControls(false);
 	        view.getSettings().setUseWideViewPort(false);
 	        view.getSettings().setLoadWithOverviewMode(false);
@@ -112,7 +104,7 @@ public class DDGWebViewClient extends WebViewClient {
 	        view.getSettings().setPluginState(WebSettings.PluginState.ON);
 
 	        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB) {
-    	        view.getSettings().setEnableSmoothTransition(false);
+    	        //view.getSettings().setEnableSmoothTransition(false);
     	        view.getSettings().setDisplayZoomControls(false);
 	        }
 	        
@@ -198,7 +190,7 @@ public class DDGWebViewClient extends WebViewClient {
 //        searchField.setCompoundDrawables(null, null, mDuckDuckGoContainer.reloadDrawable, null);
 		
 		DDGWebView wv = ((DDGWebView) view);
-		
+		/*
 		if(wv.readableBackState) {
 			wv.readableBackState = false;
 			if(wv.canGoBack()) {
@@ -213,7 +205,7 @@ public class DDGWebViewClient extends WebViewClient {
 		else if(wv.loadingReadableBack) {
 			wv.loadingReadableBack = false;
 			wv.readableAction(DDGControlVar.currentFeedObject);
-		}				
+		}*/
 		
 		if(wv.shouldClearHistory) {
 			wv.clearHistory();

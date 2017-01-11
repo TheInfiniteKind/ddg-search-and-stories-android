@@ -31,11 +31,8 @@ import com.duckduckgo.mobile.android.adapters.AutoCompleteResultsAdapter;
 import com.duckduckgo.mobile.android.adapters.RecentResultCursorAdapter;
 import com.duckduckgo.mobile.android.bus.BusProvider;
 import com.duckduckgo.mobile.android.container.DuckDuckGoContainer;
-import com.duckduckgo.mobile.android.dialogs.NewSourcesDialogBuilder;
 import com.duckduckgo.mobile.android.dialogs.menuDialogs.HistorySearchMenuDialog;
-import com.duckduckgo.mobile.android.dialogs.menuDialogs.HistoryStoryMenuDialog;
 import com.duckduckgo.mobile.android.dialogs.menuDialogs.SavedSearchMenuDialog;
-import com.duckduckgo.mobile.android.dialogs.menuDialogs.SavedStoryMenuDialog;
 import com.duckduckgo.mobile.android.events.AutoCompleteResultClickEvent;
 import com.duckduckgo.mobile.android.events.ConfirmDialogOkEvent;
 import com.duckduckgo.mobile.android.events.DisplayHomeScreenEvent;
@@ -57,34 +54,23 @@ import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewReloadActionEve
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewSearchOrGoToUrlEvent;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewSearchWebTermEvent;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewShowHistoryObjectEvent;
-import com.duckduckgo.mobile.android.events.deleteEvents.DeleteStoryInHistoryEvent;
 import com.duckduckgo.mobile.android.events.deleteEvents.DeleteUrlInHistoryEvent;
 import com.duckduckgo.mobile.android.events.externalEvents.SearchExternalEvent;
 import com.duckduckgo.mobile.android.events.externalEvents.SendToExternalBrowserEvent;
-import com.duckduckgo.mobile.android.events.feedEvents.FeedCancelCategoryFilterEvent;
-import com.duckduckgo.mobile.android.events.feedEvents.FeedCancelSourceFilterEvent;
-import com.duckduckgo.mobile.android.events.feedEvents.FeedItemSelectedEvent;
-import com.duckduckgo.mobile.android.events.feedEvents.MainFeedItemLongClickEvent;
-import com.duckduckgo.mobile.android.events.feedEvents.SavedFeedItemLongClickEvent;
 import com.duckduckgo.mobile.android.events.pasteEvents.RecentSearchPasteEvent;
 import com.duckduckgo.mobile.android.events.pasteEvents.SavedSearchPasteEvent;
 import com.duckduckgo.mobile.android.events.pasteEvents.SuggestionPasteEvent;
 import com.duckduckgo.mobile.android.events.saveEvents.SaveSearchEvent;
-import com.duckduckgo.mobile.android.events.saveEvents.SaveStoryEvent;
 import com.duckduckgo.mobile.android.events.saveEvents.UnSaveSearchEvent;
-import com.duckduckgo.mobile.android.events.saveEvents.UnSaveStoryEvent;
 import com.duckduckgo.mobile.android.events.savedSearchEvents.SavedSearchItemLongClickEvent;
 import com.duckduckgo.mobile.android.events.savedSearchEvents.SavedSearchItemSelectedEvent;
-import com.duckduckgo.mobile.android.events.shareEvents.ShareFeedEvent;
 import com.duckduckgo.mobile.android.events.shareEvents.ShareSearchEvent;
 import com.duckduckgo.mobile.android.events.shareEvents.ShareWebPageEvent;
 import com.duckduckgo.mobile.android.fragment.AboutFragment;
 import com.duckduckgo.mobile.android.fragment.HelpFeedbackFragment;
 import com.duckduckgo.mobile.android.fragment.PrefFragment;
 import com.duckduckgo.mobile.android.fragment.SearchFragment;
-import com.duckduckgo.mobile.android.fragment.SourcesFragment;
 import com.duckduckgo.mobile.android.fragment.WebFragment;
-import com.duckduckgo.mobile.android.objects.FeedObject;
 import com.duckduckgo.mobile.android.objects.SuggestObject;
 import com.duckduckgo.mobile.android.tasks.ScanAppsTask;
 import com.duckduckgo.mobile.android.util.AppStateManager;
@@ -124,26 +110,6 @@ public class DuckDuckGo extends AppCompatActivity {
     private boolean newIntent = false;
 		
 	private final int PREFERENCES_RESULT = 0;
-
-    /**
-     * save feed by object or by the feed id
-     * 
-     * @param feedObject
-     * @param pageFeedId
-     */
-    public void itemSaveFeed(FeedObject feedObject, String pageFeedId) {
-    	if(feedObject != null) {
-    		if(DDGApplication.getDB().existsAllFeedById(feedObject.getId())) {
-                DDGApplication.getDB().makeItemFavorite(feedObject.getId());
-    		}
-    		else {
-                DDGApplication.getDB().insertFavorite(feedObject);
-    		}
-    	}
-    	else if(pageFeedId != null && pageFeedId.length() != 0){
-            DDGApplication.getDB().makeItemFavorite(pageFeedId);
-    	}
-    }
     
     public void itemSaveSearch(String title, String url) {
     	DDGApplication.getDB().insertSavedSearch(title, url);
@@ -161,8 +127,6 @@ public class DuckDuckGo extends AppCompatActivity {
         canCommitFragmentSafely = true;
 
         keyboardService = new KeyboardService(this);
-
-        showNewSourcesDialog();
 
         sharedPreferences = DDGApplication.getSharedPreferences();
 
@@ -187,8 +151,6 @@ public class DuckDuckGo extends AppCompatActivity {
         	savedState = true;
 
         DDGControlVar.isAutocompleteActive = PreferencesManager.getAutocomplete();
-        // always refresh on start
-        DDGControlVar.hasUpdatedFeed = false;
         DDGControlVar.mDuckDuckGoContainer = (DuckDuckGoContainer) getLastCustomNonConfigurationInstance();
     	if(DDGControlVar.mDuckDuckGoContainer == null){
             initializeContainer();
@@ -364,13 +326,6 @@ public class DuckDuckGo extends AppCompatActivity {
         DDGControlVar.mDuckDuckGoContainer.torIntegration = new TorIntegration(this);
     }
 
-    private void showNewSourcesDialog() {
-        if(PreferencesManager.shouldShowNewSourcesDialog()){
-            new NewSourcesDialogBuilder(this).show();
-            PreferencesManager.newSourcesDialogWasShown();
-        }
-    }
-
     public void showAllFragments() {
         Log.d(TAG, "show all fragments");
         if(fragmentManager.getFragments()!=null && fragmentManager.getFragments().size()!=0) {
@@ -425,9 +380,6 @@ public class DuckDuckGo extends AppCompatActivity {
                 fragment = new PrefFragment();
                 tag = PrefFragment.TAG;
                 break;
-            case SCR_SOURCES:
-                fragment = new SourcesFragment();
-                tag = SourcesFragment.TAG;
             default:
 				break;
 		}
@@ -515,10 +467,6 @@ public class DuckDuckGo extends AppCompatActivity {
 		
         DDGUtils.displayStats.refreshStats(this);
 
-		// update feeds
-		// https://app.asana.com/0/2891531242889/2858723303746
-		DDGControlVar.hasUpdatedFeed = false;
-
 		if(DDGControlVar.includeAppsInSearch && !DDGControlVar.hasAppsIndexed) {
 			// index installed apps
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -551,7 +499,7 @@ public class DuckDuckGo extends AppCompatActivity {
 		PreferencesManager.saveReadArticles();
 		
 		// XXX keep these for low memory conditions
-		AppStateManager.saveAppState(sharedPreferences, DDGControlVar.mDuckDuckGoContainer, DDGControlVar.currentFeedObject);
+		AppStateManager.saveAppState(sharedPreferences, DDGControlVar.mDuckDuckGoContainer);
 	}
 	
 	@Override
@@ -565,7 +513,7 @@ public class DuckDuckGo extends AppCompatActivity {
 	
 	@Override
 	protected void onDestroy() {
-		DDGApplication.getImageCache().purge();
+		//DDGApplication.getImageCache().purge();
 		super.onDestroy();
 	}
 	
@@ -576,19 +524,10 @@ public class DuckDuckGo extends AppCompatActivity {
 				|| DDGControlVar.mDuckDuckGoContainer.webviewShowing || isFragmentVisible(WebFragment.TAG))) {
 			BusProvider.getInstance().post(new WebViewBackPressActionEvent());
 		}
-		// main feed showing & source filter is active
-        else if(DDGControlVar.targetSource != null){
-			BusProvider.getInstance().post(new FeedCancelSourceFilterEvent());
-		}
-        // main feed showing & category filter is active
-        else if(DDGControlVar.targetCategory != null) {
-            BusProvider.getInstance().post(new FeedCancelCategoryFilterEvent());
-        }
         else if(fragmentManager.getBackStackEntryCount()==1) {
             finish();
         }
 		else if(!isFinishing()) {
-            DDGControlVar.hasUpdatedFeed = false;
             super.onBackPressed();
 		}
 	}
@@ -626,42 +565,6 @@ public class DuckDuckGo extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    private void onMenuItemClicked(MenuItem menuItem) {
-        onMenuItemClicked(menuItem, null);
-    }
-
-    private void onMenuItemClicked(MenuItem menuItem, FeedObject feed) {
-        switch(menuItem.getItemId()) {
-            case R.id.action_settings:
-                actionSettings();
-                break;
-            case R.id.action_help_feedback:
-                actionHelpFeedback();
-                break;
-            case R.id.action_add_favorite:
-                itemSaveFeed(feed, null);
-                syncAdapters();
-                Toast.makeText(this, R.string.ToastSaveStory, Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.action_remove_favorite:
-                final long delResult = DDGApplication.getDB().makeItemUnfavorite(feed.getId());
-                if(delResult != 0) {
-                    syncAdapters();
-                }
-                Toast.makeText(this, R.string.ToastUnSaveStory, Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.action_share:
-                Sharer.shareStory(this, feed.getTitle(), feed.getUrl());
-                break;
-            case R.id.action_external:
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(feed.getUrl()));
-                DDGUtils.execIntentIfSafe(this, browserIntent);
-                break;
-
-        }
-
     }
 
     private void actionHelpFeedback(){
@@ -769,7 +672,7 @@ public class DuckDuckGo extends AppCompatActivity {
 
             FragmentTransaction transaction = fragmentManager.beginTransaction();
             Fragment f = fragmentManager.findFragmentByTag(newTag);
-            if(newTag.equals(WebFragment.TAG) || newTag.equals(SourcesFragment.TAG) || newTag.equals(AboutFragment.TAG  )) {
+            if(newTag.equals(WebFragment.TAG) || newTag.equals(AboutFragment.TAG  )) {
                 transaction.setCustomAnimations(R.anim.slide_in_from_right, R.anim.empty, R.anim.empty, R.anim.slide_out_to_right);
             } else if(newTag.equals(PrefFragment.TAG) || newTag.equals(HelpFeedbackFragment.TAG)) {
                 transaction.setCustomAnimations(R.anim.slide_in_from_bottom2, R.anim.empty, R.anim.empty, R.anim.slide_out_to_bottom2);
@@ -779,10 +682,8 @@ public class DuckDuckGo extends AppCompatActivity {
                 transaction.setCustomAnimations(R.anim.empty_immediate, R.anim.empty, R.anim.empty_immediate, R.anim.empty_immediate);
             }
             if(true || f==null) {
-                Log.d(TAG, "f==null, adding new fragment");
                 transaction.add(fragmentContainer.getId(), newFragment, newTag);
             } else {
-                Log.d(TAG, "f!=null, showing new fragment");
                 transaction.show(f);
             }
             if(currentFragment!=null && currentFragment.isAdded()) {
@@ -798,35 +699,6 @@ public class DuckDuckGo extends AppCompatActivity {
 
     public boolean isFragmentVisible(String tag) {
         return fragmentManager.findFragmentByTag(tag)!=null && fragmentManager.findFragmentByTag(tag).isVisible();
-    }
-
-    public void feedItemSelected(FeedObject feedObject) {
-        if(feedObject==null) return;
-        // keep a reference, so that we can reuse details while saving
-        DDGControlVar.currentFeedObject = feedObject;
-        DDGControlVar.mDuckDuckGoContainer.sessionType = SESSIONTYPE.SESSION_FEED;
-
-        String url = feedObject.getUrl();
-        if (url != null) {
-            //if(!DDGApplication.getDB().existsVisibleFeedById(feedObject.getId())) {
-            if(!DDGApplication.getDB().existsFavoriteFeedById(feedObject.getId())) {
-                DDGApplication.getDB().insertFeedItem(feedObject);
-                //BusProvider.getInstance().post(new RequestSyncAdaptersEvent());
-                syncAdapters();
-
-            } else {
-                DDGApplication.getDB().insertFeedItemToHistory(feedObject.getTitle(), feedObject.getUrl(), feedObject.getType(), feedObject.getId());
-                //BusProvider.getInstance().post(new RequestSyncAdaptersEvent());
-                syncAdapters();
-            }
-            //BusProvider.getInstance().post(new RequestOpenWebPageEvent(url, SESSIONTYPE.SESSION_FEED));
-            searchOrGoToUrl(url, SESSIONTYPE.SESSION_FEED);
-        }
-    }
-
-    public void feedItemSelected(String feedId) {
-        FeedObject feedObject = DDGApplication.getDB().selectFeedById(feedId);
-        feedItemSelected(feedObject);
     }
 
 	@Override
@@ -869,7 +741,7 @@ public class DuckDuckGo extends AppCompatActivity {
     
 	@Override
 	protected void onSaveInstanceState(Bundle outState)	{
-		AppStateManager.saveAppState(outState, DDGControlVar.mDuckDuckGoContainer, DDGControlVar.currentFeedObject);
+		AppStateManager.saveAppState(outState, DDGControlVar.mDuckDuckGoContainer);
 		super.onSaveInstanceState(outState);
         canCommitFragmentSafely = false;
 	}
@@ -878,15 +750,7 @@ public class DuckDuckGo extends AppCompatActivity {
 	protected void onRestoreInstanceState(Bundle savedInstanceState){
 		super.onRestoreInstanceState(savedInstanceState);
 		
-		AppStateManager.recoverAppState(savedInstanceState, DDGControlVar.mDuckDuckGoContainer, DDGControlVar.currentFeedObject);
-		String feedId = AppStateManager.getCurrentFeedObjectId(savedInstanceState);
-		
-		if(feedId != null && feedId.length() != 0) {
-			FeedObject feedObject = DDGApplication.getDB().selectFeedById(feedId);
-			if(feedObject != null) {
-				DDGControlVar.currentFeedObject = feedObject;
-			}
-		}
+		AppStateManager.recoverAppState(savedInstanceState, DDGControlVar.mDuckDuckGoContainer);
 
         if(fragmentManager.getBackStackEntryCount()>1) {
             String tag = fragmentManager.getBackStackEntryAt(0).getName();
@@ -914,29 +778,6 @@ public class DuckDuckGo extends AppCompatActivity {
 	public DDGAutoCompleteTextView getSearchField() {
         return DDGActionBarManager.getInstance().getSearchField();
 	}
-
-    /**
-     * Handling both MainFeedItemSelectedEvent and SavedFeedItemSelectedEvent.
-     * (modify to handle independently when necessary)
-     * @param event
-     */
-    @Subscribe
-    public void onFeedItemSelected(FeedItemSelectedEvent event) {
-        if(event.feedObject==null) {
-            feedItemSelected(event.feedId);
-        } else {
-            feedItemSelected(event.feedObject);
-        }
-    }
-
-	@Subscribe
-	public void onDeleteStoryInHistoryEvent(DeleteStoryInHistoryEvent event) {//left menu
-		final long delResult = DDGApplication.getDB().deleteHistoryByFeedId(event.feedObjectId);
-		if(delResult != 0) {							
-			syncAdapters();
-		}
-		Toast.makeText(this, R.string.ToastDeleteStoryInHistory, Toast.LENGTH_SHORT).show();
-	}
 	
 	@Subscribe
 	public void onDeleteUrlInHistoryEvent(DeleteUrlInHistoryEvent event) {//left menu
@@ -960,13 +801,6 @@ public class DuckDuckGo extends AppCompatActivity {
 	}
 	
 	@Subscribe
-	public void onSaveStoryEvent(SaveStoryEvent event) {
-		itemSaveFeed(event.feedObject, null);
-		syncAdapters();
-		Toast.makeText(this, R.string.ToastSaveStory, Toast.LENGTH_SHORT).show();
-	}
-	
-	@Subscribe
 	public void onSendToExternalBrowserEvent(SendToExternalBrowserEvent event) {
 		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(event.url));
 		DDGUtils.execIntentIfSafe(this, browserIntent);
@@ -976,11 +810,6 @@ public class DuckDuckGo extends AppCompatActivity {
     public void onSearchExternalEvent(SearchExternalEvent event) {
         DDGUtils.searchExternal(this, event.query);
     }
-
-	@Subscribe
-	public void onShareFeedEvent(ShareFeedEvent event) {
-		Sharer.shareStory(this, event.title, event.url);
-	}
 	
 	@Subscribe
 	public void onShareSearchEvent(ShareSearchEvent event) {
@@ -1002,29 +831,6 @@ public class DuckDuckGo extends AppCompatActivity {
 	}
 	
 	@Subscribe
-	public void onUnSaveStoryEvent(UnSaveStoryEvent event) {
-        final long delResult = DDGApplication.getDB().makeItemUnfavorite(event.feedObjectId);
-		if(delResult != 0) {							
-			syncAdapters();
-		}
-		Toast.makeText(this, R.string.ToastUnSaveStory, Toast.LENGTH_SHORT).show();
-	}
-
-	@Subscribe
-	public void onMainFeedItemLongClick(MainFeedItemLongClickEvent event) {
-        if(toolbar.getVisibility()==View.VISIBLE) {
-            toolbar.setVisibility(View.GONE);
-        } else {
-            toolbar.setVisibility(View.VISIBLE);
-        }
-	}
-	
-	@Subscribe
-	public void onSavedFeedItemLongClick(SavedFeedItemLongClickEvent event) {
-        new SavedStoryMenuDialog(this, event.feedObject).show();
-    }
-	
-	@Subscribe
 	public void onHistoryItemSelected(HistoryItemSelectedEvent event) {
         if( DDGControlVar.useExternalBrowser==DDGConstants.ALWAYS_INTERNAL) {
             displayScreen(SCREEN.SCR_WEBVIEW, false);
@@ -1044,9 +850,6 @@ public class DuckDuckGo extends AppCompatActivity {
 	public void onHistoryItemLongClick(HistoryItemLongClickEvent event) {
         if(event.historyObject.isWebSearch()) {
             new HistorySearchMenuDialog(this, event.historyObject).show();
-        }
-        else{
-            new HistoryStoryMenuDialog(this, event.historyObject).show();
         }
 	}
 
@@ -1156,37 +959,6 @@ public class DuckDuckGo extends AppCompatActivity {
 
     @Subscribe
     public void onWebViewItemMenuClickEvent(WebViewItemMenuClickEvent event) {
-        if(event.feed==null) {
-            onOptionsItemSelected(event.item);
-        } else {
-            switch(event.item.getItemId()) {
-                case R.id.action_add_favorite:
-                    itemSaveFeed(event.feed, null);
-                    syncAdapters();
-                    Toast.makeText(this, R.string.ToastSaveStory, Toast.LENGTH_SHORT).show();
-                    break;
-                case R.id.action_remove_favorite:
-                    final long delFavResult = DDGApplication.getDB().makeItemUnfavorite(event.feed.getId());
-                    if(delFavResult != 0) {
-                        syncAdapters();
-                    }
-                    Toast.makeText(this, R.string.ToastUnSaveStory, Toast.LENGTH_SHORT).show();
-                    break;
-                case R.id.action_remove_recent:
-                    final long delRecResult = DDGApplication.getDB().deleteHistoryByFeedId(event.feed.getId());
-                    if(delRecResult != 0) {
-                        syncAdapters();
-                    }
-                    Toast.makeText(this, R.string.ToastDeleteStoryInHistory, Toast.LENGTH_SHORT).show();
-                    break;
-                case R.id.action_share:
-                    Sharer.shareStory(this, event.feed.getTitle(), event.feed.getUrl());
-                    break;
-                case R.id.action_external:
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(event.feed.getUrl()));
-                    DDGUtils.execIntentIfSafe(this, browserIntent);
-                    break;
-            }
-        }
+        onOptionsItemSelected(event.item);
     }
 }

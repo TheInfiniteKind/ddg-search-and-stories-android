@@ -30,7 +30,6 @@ import com.duckduckgo.mobile.android.activity.DuckDuckGo;
 import com.duckduckgo.mobile.android.bus.BusProvider;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewUpdateMenuNavigationEvent;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewItemMenuClickEvent;
-import com.duckduckgo.mobile.android.objects.FeedObject;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -47,8 +46,6 @@ public class DDGOverflowMenu extends PopupWindow implements View.OnClickListener
     private LinearLayout header = null;
     private HashMap<Integer, MenuItem> headerItems = null;
     private boolean isBusRegistered = false;
-
-    private FeedObject feed = null;
 
     public DDGOverflowMenu(Context context) {
         super(context, null, R.attr.popUp);
@@ -138,20 +135,8 @@ public class DDGOverflowMenu extends PopupWindow implements View.OnClickListener
 
     }
 
-    public void setFeed(FeedObject feed) {
-        this.feed = feed;
-    }
-
     public void show(View anchor) {
         show(anchor, true, true);
-    }
-
-    public void showFeedMenu(View anchor) {
-        show(anchor, false, true);
-    }
-
-    public void showBelowAnchor(View anchor) {
-        show(anchor, false, false);
     }
 
     private void show(View anchor, boolean withMarginOnAnchor, boolean coverAnchor) {
@@ -218,11 +203,7 @@ public class DDGOverflowMenu extends PopupWindow implements View.OnClickListener
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if(feed==null) {
-            BusProvider.getInstance().post(new WebViewItemMenuClickEvent(overflowAdapter.getMenuItem(position)));
-        } else {
-            BusProvider.getInstance().post(new WebViewItemMenuClickEvent(overflowAdapter.getMenuItem(position), feed));
-        }
+        BusProvider.getInstance().post(new WebViewItemMenuClickEvent(overflowAdapter.getMenuItem(position)));
         dismiss();
     }
 

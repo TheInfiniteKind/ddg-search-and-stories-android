@@ -3,15 +3,11 @@ package com.duckduckgo.mobile.android.util;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.duckduckgo.mobile.android.container.DuckDuckGoContainer;
-import com.duckduckgo.mobile.android.objects.FeedObject;
-import com.duckduckgo.mobile.android.views.webview.DDGWebView;
 
 public class AppStateManager {
-	public static  void saveAppState(SharedPreferences prefs, DuckDuckGoContainer duckDuckGoContainer,
-			FeedObject currentFeedObject) {
+	public static  void saveAppState(SharedPreferences prefs, DuckDuckGoContainer duckDuckGoContainer) {
 		Editor editor = prefs.edit();
 		editor.putBoolean("homeScreenShowing", DDGControlVar.homeScreenShowing);
 		editor.putBoolean("webviewShowing", duckDuckGoContainer.webviewShowing);
@@ -20,14 +16,10 @@ public class AppStateManager {
 		editor.putInt("sessionType", duckDuckGoContainer.sessionType.ordinal());
 		editor.putString("currentFragmentTag", duckDuckGoContainer.currentFragmentTag);
         editor.putString("currentUrl", duckDuckGoContainer.currentUrl);
-		if(currentFeedObject != null) {
-			editor.putString("currentFeedObjectId", currentFeedObject.getId());
-		}
 		editor.commit();
 	}
 	
-	public static void saveAppState(Bundle bundle, DuckDuckGoContainer duckDuckGoContainer,
-			FeedObject currentFeedObject) {
+	public static void saveAppState(Bundle bundle, DuckDuckGoContainer duckDuckGoContainer) {
 		bundle.putBoolean("homeScreenShowing", DDGControlVar.homeScreenShowing);
 		bundle.putBoolean("webviewShowing", duckDuckGoContainer.webviewShowing);
 		bundle.putInt("currentScreen", duckDuckGoContainer.currentScreen.ordinal());
@@ -35,13 +27,9 @@ public class AppStateManager {
 		bundle.putInt("sessionType", duckDuckGoContainer.sessionType.ordinal());
 		bundle.putString("currentFragmentTag", duckDuckGoContainer.currentFragmentTag);
         bundle.putString("currentUrl", duckDuckGoContainer.currentUrl);
-		if(currentFeedObject != null) {
-			bundle.putString("currentFeedObjectId", currentFeedObject.getId());
-		}
 	}
 	
-	public static void recoverAppState(Object state, DuckDuckGoContainer duckDuckGoContainer,
-			FeedObject currentFeedObject) {
+	public static void recoverAppState(Object state, DuckDuckGoContainer duckDuckGoContainer) {
 		Bundle bundle = null; 
 		SharedPreferences prefs = null; 
 		

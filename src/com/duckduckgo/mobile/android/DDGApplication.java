@@ -55,7 +55,7 @@ public class DDGApplication extends Application {
 	
 	private static String DB_FOLDER_NAME = "database";
 
-    private static boolean isReleaseBuild = false;
+    //private static boolean isReleaseBuild = false;
 	
 	/**
 	 * Changes after application upgrade
@@ -74,7 +74,7 @@ public class DDGApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-        ACRA.init(this);
+        //ACRA.init(this);
 		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         db = new DdgDB(this);
 		fileCache = new FileCache(this.getApplicationContext());
@@ -147,7 +147,7 @@ public class DDGApplication extends Application {
 	public static SharedPreferences getSharedPreferences() {
 		return sharedPreferences;
 	}
-	
+
 	public static FileCache getFileCache() {
 		return fileCache;
 	}
@@ -156,9 +156,10 @@ public class DDGApplication extends Application {
 		return db;
 	}
 
+	/*
     public static boolean isIsReleaseBuild() {
         return isReleaseBuild;
-    }
+    }*/
 	
 	// method overridden to put DB in database folder cleanable upon uninstall
 	@Override

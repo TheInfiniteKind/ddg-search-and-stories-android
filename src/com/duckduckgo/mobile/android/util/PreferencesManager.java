@@ -16,12 +16,9 @@ import com.duckduckgo.mobile.android.R;
 import com.duckduckgo.mobile.android.views.webview.DDGWebView;
 
 public class PreferencesManager {
-
-	private static boolean NEW_SOURCES = true;
-	private static boolean sourcesWereMigratedRightNow = false;
 	
 	/* Settings */
-	
+
 	public static String getThemeName() {
 		return DDGApplication.getSharedPreferences().getString("themePref", "DDGDark");
 	}
@@ -124,27 +121,16 @@ public class PreferencesManager {
 				oldDisallowed.removeAll(oldAllowed);
 				saveUserDisallowedSources(oldDisallowed);
 			}
-			sourcesWereMigratedRightNow = true;
+			//sourcesWereMigratedRightNow = true;
 		}		
-	}
-	
-	public static boolean shouldShowNewSourcesDialog(){
-		return NEW_SOURCES && sourcesWereMigratedRightNow;
-	}
-	
-	public static void newSourcesDialogWasShown(){
-		NEW_SOURCES = false;
 	}
 	
 	/* Events */
     public static void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        Log.e("aaa", "Preference manager on shared preference changed");
     	if(key.equals("startScreenPref")){
     		DDGControlVar.START_SCREEN = getActiveStartScreen();
-            Log.e("aaa", "start screen: "+DDGControlVar.START_SCREEN);
         }
     	else if(key.equals("regionPref")){
-            Log.e("aaa", "preferences manager, region pref");
             DDGControlVar.regionString = sharedPreferences.getString(key, "wt-wt");
             Log.e("aaa", "control var is: "+DDGControlVar.regionString);
         }
@@ -155,9 +141,7 @@ public class PreferencesManager {
             DDGControlVar.useExternalBrowser = Integer.valueOf(sharedPreferences.getString(key, "0"));
         }
         else if(key.equals("autocompletePref")){
-            Log.e("aaa", "turn off autocomplete");
             DDGControlVar.isAutocompleteActive = sharedPreferences.getBoolean(key, true);
-            Log.e("aaa", "is autocomplete active: "+DDGControlVar.isAutocompleteActive);
         }
         else if(key.equals("autoUpdatePref")){
             DDGControlVar.automaticFeedUpdate = sharedPreferences.getBoolean(key, true);

@@ -9,10 +9,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.ListPreference;
-import android.preference.Preference;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.preference.PreferenceFragment;
+import android.support.v7.preference.ListPreference;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceFragmentCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +28,7 @@ import com.duckduckgo.mobile.android.util.DDGUtils;
 import com.duckduckgo.mobile.android.util.PreferencesManager;
 import com.duckduckgo.mobile.android.util.SCREEN;
 
-public class PrefFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener {
+public class PrefFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener {
 
     public static final String TAG = "preferences_fragment";
 
@@ -36,7 +36,7 @@ public class PrefFragment extends PreferenceFragment implements SharedPreference
 
     private ListPreference startScreenPref;
     private ListPreference regionPref;
-    private Preference sourcesPref;
+    //private Preference sourcesPref;
     private Preference clearHistoryPref;
     private Preference clearCookiesPref;
     private Preference clearWebCachePref;
@@ -49,11 +49,15 @@ public class PrefFragment extends PreferenceFragment implements SharedPreference
         this.activity = (Activity) context;
     }
 
+    @Override
+    public void onCreatePreferences(Bundle bundle, String s) {
+        addPreferencesFromResource(R.xml.preferences);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.preferences);
+        //addPreferencesFromResource(R.xml.preferences);
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 
         startScreenPref = (ListPreference) findPreference("startScreenPref");
@@ -64,8 +68,8 @@ public class PrefFragment extends PreferenceFragment implements SharedPreference
         regionPref.setSummary(regionPref.getEntry());
         regionPref.setOnPreferenceChangeListener(this);
 
-        sourcesPref = findPreference("sourcesPref");
-        sourcesPref.setOnPreferenceClickListener(this);
+        //sourcesPref = findPreference("sourcesPref");
+        //sourcesPref.setOnPreferenceClickListener(this);
 
         clearHistoryPref = findPreference("clearHistoryPref");
         clearHistoryPref.setOnPreferenceClickListener(this);
@@ -108,11 +112,11 @@ public class PrefFragment extends PreferenceFragment implements SharedPreference
     }
 
     @Override
-    public boolean onPreferenceClick(Preference preference) {
+    public boolean onPreferenceClick(Preference preference) {/*
         if(preference==sourcesPref) {
             BusProvider.getInstance().post(new DisplayScreenEvent(SCREEN.SCR_SOURCES, false));
             return true;
-        } else if(preference==clearHistoryPref) {
+        } else */if(preference==clearHistoryPref) {
             ConfirmDialog dialog = ConfirmDialog.newInstance(getResources().getString(R.string.Confirm), getResources().getString(R.string.ConfirmClearHistory), DDGConstants.CONFIRM_CLEAR_HISTORY);
             dialog.show(getFragmentManager(), ConfirmDialog.TAG);
             return true;

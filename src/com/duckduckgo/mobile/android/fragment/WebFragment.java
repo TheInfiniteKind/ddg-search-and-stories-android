@@ -1,6 +1,5 @@
 package com.duckduckgo.mobile.android.fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -25,12 +24,10 @@ import com.duckduckgo.mobile.android.actionbar.DDGActionBarManager;
 import com.duckduckgo.mobile.android.activity.KeyboardService;
 import com.duckduckgo.mobile.android.bus.BusProvider;
 import com.duckduckgo.mobile.android.dialogs.menuDialogs.WebViewQueryMenuDialog;
-import com.duckduckgo.mobile.android.dialogs.menuDialogs.WebViewStoryMenuDialog;
 import com.duckduckgo.mobile.android.dialogs.menuDialogs.WebViewWebPageMenuDialog;
 import com.duckduckgo.mobile.android.download.ContentDownloader;
 import com.duckduckgo.mobile.android.events.HandleShareButtonClickEvent;
 import com.duckduckgo.mobile.android.events.OverflowButtonClickEvent;
-import com.duckduckgo.mobile.android.events.ReadabilityFeedRetrieveSuccessEvent;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewBackPressActionEvent;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewClearBrowserStateEvent;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewClearCacheEvent;
@@ -42,20 +39,12 @@ import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewReloadActionEve
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewSearchOrGoToUrlEvent;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewSearchWebTermEvent;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewShowHistoryObjectEvent;
-import com.duckduckgo.mobile.android.events.feedEvents.FeedItemSelectedEvent;
-import com.duckduckgo.mobile.android.events.readabilityEvents.TurnReadabilityOffEvent;
-import com.duckduckgo.mobile.android.events.readabilityEvents.TurnReadabilityOnEvent;
 import com.duckduckgo.mobile.android.events.saveEvents.SaveSearchEvent;
-import com.duckduckgo.mobile.android.events.saveEvents.SaveStoryEvent;
 import com.duckduckgo.mobile.android.events.saveEvents.UnSaveSearchEvent;
-import com.duckduckgo.mobile.android.events.saveEvents.UnSaveStoryEvent;
-import com.duckduckgo.mobile.android.events.shareEvents.ShareFeedEvent;
 import com.duckduckgo.mobile.android.events.shareEvents.ShareSearchEvent;
 import com.duckduckgo.mobile.android.events.shareEvents.ShareWebPageEvent;
 import com.duckduckgo.mobile.android.network.DDGNetworkConstants;
-import com.duckduckgo.mobile.android.objects.FeedObject;
 import com.duckduckgo.mobile.android.objects.history.HistoryObject;
-import com.duckduckgo.mobile.android.tasks.ReadableFeedTask;
 import com.duckduckgo.mobile.android.util.DDGConstants;
 import com.duckduckgo.mobile.android.util.DDGControlVar;
 import com.duckduckgo.mobile.android.util.DDGUtils;
@@ -95,8 +84,6 @@ public class WebFragment extends Fragment {
     private Menu headerMenu = null;
     private Menu mainMenu = null;
     private DDGOverflowMenu overflowMenu = null;
-
-    private ReadableFeedTask readableFeedTask;
 
     public static WebFragment newInstance(String url, SESSIONTYPE sessionType) {
         WebFragment fragment = new WebFragment();
@@ -155,10 +142,6 @@ public class WebFragment extends Fragment {
     @Override
     public void onPause() {
 		dismissMenu();
-		if(readableFeedTask!=null) {
-			readableFeedTask.cancel(true);
-			readableFeedTask = null;
-		}
 		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			mainWebView.onPause();
 		}
@@ -229,20 +212,6 @@ public class WebFragment extends Fragment {
         MenuItem saveItem = menu.findItem(R.id.action_add_favorite);
         MenuItem deleteItem = menu.findItem(R.id.action_remove_favorite);
         switch(urlType) {
-            case FEED:
-                if(DDGControlVar.currentFeedObject!=null) {
-                    if(DDGControlVar.currentFeedObject.isSaved()) {
-                        saveItem.setVisible(false);
-                        deleteItem.setVisible(true);
-                    } else {
-                        saveItem.setVisible(true);
-                        deleteItem.setVisible(false);
-                    }
-                } else {
-                    saveItem.setVisible(false);
-                    deleteItem.setVisible(false);
-                }
-                break;
             case SERP:
                 String webViewUrl = mainWebView.getUrl();
                 if(webViewUrl==null) {
@@ -322,7 +291,6 @@ public class WebFragment extends Fragment {
 	public void init() {
 		keyboardService = new KeyboardService(getActivity());
 		mainWebView = (DDGWebView) fragmentView.findViewById(R.id.fragmentMainWebView);
-		mainWebView.setParentActivity(getActivity());
 		mainWebView.getSettings().setJavaScriptEnabled(PreferencesManager.getEnableJavascript());
         Log.e("javascript_enabled", PreferencesManager.getEnableJavascript()+"");
         DDGWebView.recordCookies(PreferencesManager.getRecordCookies());
@@ -394,11 +362,6 @@ public class WebFragment extends Fragment {
 		savedState = false;
 
 		DDGControlVar.mDuckDuckGoContainer.sessionType = sessionType;
-
-		if(DDGControlVar.mDuckDuckGoContainer.sessionType == SESSIONTYPE.SESSION_FEED) {
-			showFeed(DDGControlVar.currentFeedObject);
-			return;
-		}
 
 		if (text!=null && text.length() > 0) {
 			java.net.URL searchAsUrl = null;
@@ -492,9 +455,6 @@ public class WebFragment extends Fragment {
 			DDGApplication.getDB().insertHistoryObject(historyObject);
 			//DDGControlVar.mDuckDuckGoContainer.historyAdapter.sync();
 			String feedId = historyObject.getFeedId();
-			if(feedId != null) {
-				BusProvider.getInstance().post(new FeedItemSelectedEvent(feedId));
-			}
 		}
 		else {
 			DDGApplication.getDB().insertHistoryObject(historyObject);
@@ -511,69 +471,15 @@ public class WebFragment extends Fragment {
 			return;
 		}
 
-		if(isStorySessionOrStoryUrl()) {
-			DDGControlVar.mDuckDuckGoContainer.lastFeedUrl = url;
-			if(DDGControlVar.currentFeedObject != null) {
-				urlType = URLTYPE.FEED;
-			}
-		} else if(DDGUtils.isSerpUrl(url)) {
+		if(DDGUtils.isSerpUrl(url)) {
 			urlType = URLTYPE.SERP;
 		} else {
 			urlType = URLTYPE.WEBPAGE;
 		}
 
 		if(!savedState) {
-			mainWebView.setIsReadable(false);
 			mainWebView.loadUrl(url);
 		}
-	}
-
-	public void showFeed(FeedObject feedObject) {
-        Log.e("show_feed", "DDGControlVar.useExternalBrowser == DDGConstants.ALWAYS_INTERNAL: "+(DDGControlVar.useExternalBrowser == DDGConstants.ALWAYS_INTERNAL));
-        Log.e("show_feed", "PreferencesManager.getReadable(): "+(PreferencesManager.getReadable()));
-        Log.e("show_feed", "mainWebView != null: "+(mainWebView!=null));
-        Log.e("show_feed", "!mainWebView.isOriginalRequired(): "+((mainWebView==null)?"null":!mainWebView.isOriginalRequired()));
-        Log.e("show_feed", "feedObject != null: "+(feedObject!=null));
-        Log.e("show_feed", "feedObject.getArticleUrl() != null: "+((feedObject!=null)?feedObject.getArticleUrl():"null"));
-        if(feedObject==null) return;
-		if(!savedState) {
-			if(DDGControlVar.useExternalBrowser == DDGConstants.ALWAYS_INTERNAL
-					&& PreferencesManager.getReadable()
-					&& !mainWebView.isOriginalRequired()
-                    && feedObject.getArticleUrl()!=null
-					&& feedObject.getArticleUrl().length() != 0) {
-				urlType = URLTYPE.FEED;
-
-                if(readableFeedTask!=null) {
-                    readableFeedTask.cancel(true);
-                    readableFeedTask = null;
-                }
-                readableFeedTask = new ReadableFeedTask(feedObject);
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    readableFeedTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                } else {
-                    readableFeedTask.execute();
-                }
-			}
-			else {
-				showWebUrl(feedObject.getUrl());
-			}
-		}
-	}
-
-	private boolean isStorySessionOrStoryUrl() {
-        String originalUrl = null;
-        try {
-            originalUrl = mainWebView.getOriginalUrl();
-        } catch(NullPointerException e) {
-            e.printStackTrace();
-        }
-		return DDGControlVar.mDuckDuckGoContainer.sessionType == SESSIONTYPE.SESSION_FEED
-				||
-				( DDGControlVar.mDuckDuckGoContainer.sessionType == SESSIONTYPE.SESSION_BROWSE
-                        && originalUrl!=null
-						&& DDGControlVar.mDuckDuckGoContainer.lastFeedUrl.equals(originalUrl)
-				);
 	}
 
 	private void handleShareButtonClick() {
@@ -584,16 +490,7 @@ public class WebFragment extends Fragment {
 			webViewUrl = "";
 		}
 
-		// direct displaying after feed item is clicked
-		// the rest will arrive as SESSION_BROWSE
-		// so we should save this feed item with target redirected URL
-		if(isStorySessionOrStoryUrl()) {
-			DDGControlVar.mDuckDuckGoContainer.lastFeedUrl = webViewUrl;
-			if(DDGControlVar.currentFeedObject != null) {
-				new WebViewStoryMenuDialog(context, DDGControlVar.currentFeedObject, mainWebView.isReadable).show();//
-			}
-		}
-		else if(DDGUtils.isSerpUrl(webViewUrl)) {
+		if(DDGUtils.isSerpUrl(webViewUrl)) {
 			new WebViewQueryMenuDialog(context, webViewUrl).show();
 		}
 		else {
@@ -607,11 +504,6 @@ public class WebFragment extends Fragment {
 			webViewUrl = "";
 		}
 		switch(urlType) {
-			case FEED:
-                if(DDGControlVar.currentFeedObject!=null &&DDGControlVar.currentFeedObject.getTitle()!=null && DDGControlVar.currentFeedObject.getUrl()!=null) {
-                    BusProvider.getInstance().post(new ShareFeedEvent(DDGControlVar.currentFeedObject.getTitle(), DDGControlVar.currentFeedObject.getUrl()));
-                }
-				break;
 			case SERP:
 				BusProvider.getInstance().post(new ShareSearchEvent(webViewUrl));
 				break;
@@ -633,25 +525,13 @@ public class WebFragment extends Fragment {
 	}
 
 	private void actionReload() {
-		if(!mainWebView.isReadable)
-			mainWebView.reload();
-		else {
-            if(DDGControlVar.currentFeedObject==null) return;
-            readableFeedTask = new ReadableFeedTask(DDGControlVar.currentFeedObject);
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                readableFeedTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            } else {
-                readableFeedTask.execute();
-            }
-		}
+		mainWebView.reload();
+		//if(!mainWebView.isReadable)
+			//mainWebView.reload();
 	}
 
 	private void actionSave() {
 		switch(urlType) {
-			case FEED:
-				if(DDGControlVar.currentFeedObject==null) return;
-				BusProvider.getInstance().post(new SaveStoryEvent(DDGControlVar.currentFeedObject));
-				break;
 			case SERP:
 				String query = mainWebView.getUrl();
 				if(query==null) return;
@@ -669,10 +549,6 @@ public class WebFragment extends Fragment {
 
 	private void actionDelete() {
 		switch(urlType) {
-			case FEED:
-				if(DDGControlVar.currentFeedObject==null) return;
-				BusProvider.getInstance().post(new UnSaveStoryEvent(DDGControlVar.currentFeedObject.getId()));
-				break;
 			case SERP:
 				BusProvider.getInstance().post(new UnSaveSearchEvent(DDGUtils.getQueryIfSerp(mainWebView.getUrl())));
 				break;
@@ -680,15 +556,6 @@ public class WebFragment extends Fragment {
 				BusProvider.getInstance().post(new UnSaveSearchEvent(mainWebView.getUrl()));
 				break;
 		}
-		if(urlType==URLTYPE.FEED) {
-		} else if(urlType==URLTYPE.SERP) {
-		}
-	}
-
-	private void actionTurnReadabilityOff() {
-		String webViewUrl = mainWebView.getUrl();
-		mainWebView.forceOriginal();
-		showWebUrl(webViewUrl);
 	}
 
     public void setContext(Context context) {
@@ -696,14 +563,6 @@ public class WebFragment extends Fragment {
            this.context = context;
        }
     }
-
-	private void actionTurnReadabilityOn() {
-        if(readableFeedTask!=null) {
-            readableFeedTask.cancel(true);
-            readableFeedTask=null;
-        }
-        readableFeedTask = new ReadableFeedTask(DDGControlVar.currentFeedObject);
-	}
 
     private void dismissMenu() {
         if(overflowMenu!=null && overflowMenu.isShowing()) {
@@ -729,35 +588,6 @@ public class WebFragment extends Fragment {
 	@Subscribe
 	public void onWebViewBackPressActionEvent(WebViewBackPressActionEvent event) {
 		mainWebView.backPressAction(true);
-	}
-
-	@Subscribe
-	public void onTurnReadabilityOffEvent(TurnReadabilityOffEvent event) {
-		mainWebView.forceOriginal();
-		showWebUrl(event.url);
-	}
-
-	@Subscribe
-	public void onTurnReadabilityOnEvent(TurnReadabilityOnEvent event) {
-        if(readableFeedTask!=null) {
-            readableFeedTask.cancel(true);
-        }
-        readableFeedTask = new ReadableFeedTask(event.feedObject);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            readableFeedTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            readableFeedTask.execute();
-        }
-	}
-
-
-	@Subscribe
-	public void onReadabilityFeedRetrieveSuccessEvent(ReadabilityFeedRetrieveSuccessEvent event) {
-		if(event.feed.size() != 0) {
-			DDGControlVar.currentFeedObject = event.feed.get(0);
-			DDGControlVar.mDuckDuckGoContainer.lastFeedUrl = DDGControlVar.currentFeedObject.getUrl();
-			mainWebView.readableAction(DDGControlVar.currentFeedObject);
-		}
 	}
 
 	@Subscribe
@@ -823,10 +653,7 @@ public class WebFragment extends Fragment {
 
 	@Subscribe
 	public void onWebViewOnPageStarted(WebViewOnPageStarted event) {
-		if(DDGControlVar.currentFeedObject!=null && DDGControlVar.currentFeedObject.getUrl()!=null
-				&& DDGControlVar.currentFeedObject.getUrl().equals(event.url)) {
-			urlType = URLTYPE.FEED;
-		} else if(DDGUtils.isSerpUrl(event.url)) {
+		if(DDGUtils.isSerpUrl(event.url)) {
 			urlType = URLTYPE.SERP;
 		} else {
 			urlType = URLTYPE.WEBPAGE;

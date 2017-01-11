@@ -19,7 +19,7 @@
             android:entries="@array/useExternalBrowserArray"
             android:entryValues="@array/useExternalBrowserValues"/>
 
-    </PreferenceCategory>
+    </PreferenceCategory><!--
 
     <PreferenceCategory android:title="@string/PrefGroupStories">
 
@@ -40,11 +40,11 @@
             android:key="autoUpdatePref"
             android:defaultValue="true" />
 
-    </PreferenceCategory>
+    </PreferenceCategory>-->
 
     <PreferenceCategory android:title="@string/PrefGroupSearch">
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:title="@string/PrefAutocomplete"
             android:key="autocompletePref"
             android:defaultValue="true"
@@ -62,12 +62,12 @@
 
     <PreferenceCategory android:title="@string/PrefGroupPrivacy">
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:title="@string/PrefEnableJavascript"
             android:key="enableJavascriptPref"
             android:defaultValue="true"/>
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:title="@string/PrefRecordHistory"
             android:key="recordHistoryPref"
             android:defaultValue="true" />
@@ -77,7 +77,7 @@
             android:key="clearHistoryPref"
             android:defaultValue="" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:title="@string/PrefRecordCookies"
             android:key="recordCookiesPref"
             android:defaultValue="true" />
@@ -92,7 +92,7 @@
             android:key="clearWebCachePref"
             android:defaultValue="" />
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:title="@string/PrefEnableAcra"
             android:key="acra.alwaysaccept"
             android:defaultValue="false"/>
@@ -101,7 +101,7 @@
 
     <PreferenceCategory android:title="@string/PrefGroupTor">
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:title="@string/PrefEnableTor"
             android:key="enableTor"
             android:defaultValue="false" />

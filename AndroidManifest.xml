@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.duckduckgo.mobile.android"
-    android:installLocation="auto"
+    android:installLocation="auto"><!--
     android:versionCode="76"
-    android:versionName="3.0.14">
+    android:versionName="3.0.14">-->
 
-    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="23" />
+    <!--8 to become 9 eventually --><!--
+    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="25" />-->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>

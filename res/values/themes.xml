@@ -13,6 +13,7 @@
         <item name="colorAccent">@color/colorPrimary</item>
         <item name="actionOverflowButtonStyle">@style/OverflowButton</item>
         <item name="popUp">@style/DDGPopup</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
     </style>
 
     <style name="DDGPopup" parent="Widget.AppCompat.PopupMenu"><!--PopupMenu-->

@@ -1,7 +1,7 @@
 package com.duckduckgo.mobile.android.util;
 
 public enum SESSIONTYPE {
-	SESSION_SEARCH(0), SESSION_FEED(1), SESSION_BROWSE(2);
+	SESSION_SEARCH(0), SESSION_BROWSE(2);
 	
 	private int code;
 	
@@ -17,8 +17,6 @@ public enum SESSIONTYPE {
 		switch(code){
 			case 0:
 				return SESSION_SEARCH;
-			case 1:
-				return SESSION_FEED;
 			case 2:
 				return SESSION_BROWSE;
 			default:

@@ -19,7 +19,7 @@
             android:entries="@array/useExternalBrowserArray"
             android:entryValues="@array/useExternalBrowserValues"/>
 
-    </PreferenceCategory>
+    </PreferenceCategory><!--
 
     <PreferenceCategory android:title="@string/PrefGroupStories">
 
@@ -40,7 +40,7 @@
             android:key="autoUpdatePref"
             android:defaultValue="true" />
 
-    </PreferenceCategory>
+    </PreferenceCategory>-->
 
     <PreferenceCategory android:title="@string/PrefGroupSearch">
 

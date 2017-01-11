@@ -1,8 +1,7 @@
 package com.duckduckgo.mobile.android.util;
 
-import com.duckduckgo.mobile.android.objects.FeedObject;
-
 public class ReadArticlesManager {
+	/*
 	public static Boolean addReadArticle(FeedObject feedObject){
 		String feedId = feedObject.getId();
 		if(feedId != null){
@@ -10,7 +9,7 @@ public class ReadArticlesManager {
 			return true;
 		}
 		return false;
-	}
+	}*/
 	
 	public static String getCombinedStringForReadArticles() {
 		String combinedStringForReadArticles = "";

@@ -233,13 +233,6 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
                 setHomeButtonMarginTop(false);
                 setProgressBarVisible(false);
                 break;
-            case SCR_SOURCES:
-                showTitle(tag, context.getResources().getString(R.string.change_sources));
-                setOverflowButton(false);
-                setOverflowButtonMarginTop(false);
-                setHomeButton(true);
-                setHomeButtonMarginTop(false);
-                setProgressBarVisible(false);
             default:
                 break;
         }
@@ -464,7 +457,6 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
 
     public void resetScreenState() {
         clearSearchBar();
-        DDGControlVar.currentFeedObject = null;
         DDGControlVar.mDuckDuckGoContainer.sessionType = SESSIONTYPE.SESSION_BROWSE;
     }
 
