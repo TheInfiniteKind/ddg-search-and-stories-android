@@ -52,7 +52,7 @@ public class DDGApplication extends Application {
 	private static FileCache fileCache = null;
 	private static SharedPreferences sharedPreferences = null;
 	private static DdgDB db = null;
-	
+
 	private static String DB_FOLDER_NAME = "database";
 
     //private static boolean isReleaseBuild = false;
@@ -121,7 +121,7 @@ public class DDGApplication extends Application {
 		DDGControlVar.START_SCREEN = PreferencesManager.getActiveStartScreen();
 		DDGControlVar.regionString = PreferencesManager.getRegion();
         DDGControlVar.useExternalBrowser = PreferencesManager.getUseExternalBrowser();
-		
+		/*
 		DDGControlVar.defaultSources = PreferencesManager.getDefaultSources();
 		DDGControlVar.userAllowedSources = PreferencesManager.getUserAllowedSources();
 		DDGControlVar.userDisallowedSources = PreferencesManager.getUserDisallowedSources();
@@ -135,7 +135,7 @@ public class DDGApplication extends Application {
 					DDGControlVar.readArticles.add(strId);
 				}
 			}
-		}
+		}*/
 
 	}
 

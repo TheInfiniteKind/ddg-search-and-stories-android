@@ -445,7 +445,7 @@ public final class DDGUtils {
         } else  if(tag.equals(SearchFragment.TAG_HOME_PAGE)) {
             return SCREEN.SCR_SEARCH_HOME_PAGE;
         }
-		return SCREEN.SCR_SEARCH_HOME_PAGE;
+		return SCREEN.SCR_WEBVIEW;
     }
 
     public static String getTagByScreen(SCREEN screen) {
@@ -463,7 +463,7 @@ public final class DDGUtils {
             case SCR_SEARCH_HOME_PAGE:
                 return SearchFragment.TAG_HOME_PAGE;
             default:
-				return SearchFragment.TAG_HOME_PAGE;
+				return WebFragment.TAG;
         }
     }
 

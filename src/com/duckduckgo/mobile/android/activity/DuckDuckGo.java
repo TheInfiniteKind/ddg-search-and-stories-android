@@ -22,23 +22,17 @@ import android.view.inputmethod.EditorInfo;
 import android.webkit.WebStorage;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.duckduckgo.mobile.android.DDGApplication;
 import com.duckduckgo.mobile.android.R;
 import com.duckduckgo.mobile.android.actionbar.DDGActionBarManager;
 import com.duckduckgo.mobile.android.adapters.AutoCompleteResultsAdapter;
-import com.duckduckgo.mobile.android.adapters.RecentResultCursorAdapter;
 import com.duckduckgo.mobile.android.bus.BusProvider;
 import com.duckduckgo.mobile.android.container.DuckDuckGoContainer;
-import com.duckduckgo.mobile.android.dialogs.menuDialogs.HistorySearchMenuDialog;
-import com.duckduckgo.mobile.android.dialogs.menuDialogs.SavedSearchMenuDialog;
 import com.duckduckgo.mobile.android.events.AutoCompleteResultClickEvent;
 import com.duckduckgo.mobile.android.events.ConfirmDialogOkEvent;
 import com.duckduckgo.mobile.android.events.DisplayHomeScreenEvent;
 import com.duckduckgo.mobile.android.events.DisplayScreenEvent;
-import com.duckduckgo.mobile.android.events.HistoryItemLongClickEvent;
-import com.duckduckgo.mobile.android.events.HistoryItemSelectedEvent;
 import com.duckduckgo.mobile.android.events.ReloadEvent;
 import com.duckduckgo.mobile.android.events.RemoveWebFragmentEvent;
 import com.duckduckgo.mobile.android.events.RequestOpenWebPageEvent;
@@ -53,17 +47,9 @@ import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewOpenMenuEvent;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewReloadActionEvent;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewSearchOrGoToUrlEvent;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewSearchWebTermEvent;
-import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewShowHistoryObjectEvent;
-import com.duckduckgo.mobile.android.events.deleteEvents.DeleteUrlInHistoryEvent;
 import com.duckduckgo.mobile.android.events.externalEvents.SearchExternalEvent;
 import com.duckduckgo.mobile.android.events.externalEvents.SendToExternalBrowserEvent;
-import com.duckduckgo.mobile.android.events.pasteEvents.RecentSearchPasteEvent;
-import com.duckduckgo.mobile.android.events.pasteEvents.SavedSearchPasteEvent;
 import com.duckduckgo.mobile.android.events.pasteEvents.SuggestionPasteEvent;
-import com.duckduckgo.mobile.android.events.saveEvents.SaveSearchEvent;
-import com.duckduckgo.mobile.android.events.saveEvents.UnSaveSearchEvent;
-import com.duckduckgo.mobile.android.events.savedSearchEvents.SavedSearchItemLongClickEvent;
-import com.duckduckgo.mobile.android.events.savedSearchEvents.SavedSearchItemSelectedEvent;
 import com.duckduckgo.mobile.android.events.shareEvents.ShareSearchEvent;
 import com.duckduckgo.mobile.android.events.shareEvents.ShareWebPageEvent;
 import com.duckduckgo.mobile.android.fragment.AboutFragment;
@@ -110,10 +96,6 @@ public class DuckDuckGo extends AppCompatActivity {
     private boolean newIntent = false;
 		
 	private final int PREFERENCES_RESULT = 0;
-    
-    public void itemSaveSearch(String title, String url) {
-    	DDGApplication.getDB().insertSavedSearch(title, url);
-    }
     
     public void syncAdapters() {
     	//DDGControlVar.mDuckDuckGoContainer.historyAdapter.sync();
@@ -285,8 +267,6 @@ public class DuckDuckGo extends AppCompatActivity {
                 }
                 if(DDGControlVar.isAutocompleteActive) {
                     DDGControlVar.mDuckDuckGoContainer.acAdapter.getFilter().filter(s);
-                } else {
-                    DDGControlVar.mDuckDuckGoContainer.recentResultCursorAdapter.getFilter().filter(s);
                 }
             }
 
@@ -321,7 +301,6 @@ public class DuckDuckGo extends AppCompatActivity {
         //DDGControlVar.mDuckDuckGoContainer.historyAdapter = new MultiHistoryAdapter(this);
 
         DDGControlVar.mDuckDuckGoContainer.acAdapter = new AutoCompleteResultsAdapter(this);
-        DDGControlVar.mDuckDuckGoContainer.recentResultCursorAdapter = new RecentResultCursorAdapter(this, DDGApplication.getDB().getCursorSearchHistory());
 
         DDGControlVar.mDuckDuckGoContainer.torIntegration = new TorIntegration(this);
     }
@@ -496,7 +475,7 @@ public class DuckDuckGo extends AppCompatActivity {
 
 
         DDGActionBarManager.getInstance().dismissMenu();
-		PreferencesManager.saveReadArticles();
+		//PreferencesManager.saveReadArticles();
 		
 		// XXX keep these for low memory conditions
 		AppStateManager.saveAppState(sharedPreferences, DDGControlVar.mDuckDuckGoContainer);
@@ -504,7 +483,7 @@ public class DuckDuckGo extends AppCompatActivity {
 	
 	@Override
 	protected void onStop() {
-		PreferencesManager.saveReadArticles();
+		//PreferencesManager.saveReadArticles();
 		super.onStop();
         BusProvider.getInstance().unregister(this);
         DDGControlVar.mDuckDuckGoContainer.torIntegration.dismissDialogs();
@@ -780,24 +759,8 @@ public class DuckDuckGo extends AppCompatActivity {
 	}
 	
 	@Subscribe
-	public void onDeleteUrlInHistoryEvent(DeleteUrlInHistoryEvent event) {//left menu
-		final long delHistory = DDGApplication.getDB().deleteHistoryByDataUrl(event.pageData, event.pageUrl);				
-		if(delHistory != 0) {							
-			syncAdapters();
-		}	
-		Toast.makeText(this, R.string.ToastDeleteUrlInHistory, Toast.LENGTH_SHORT).show();
-	}
-	
-	@Subscribe
 	public void onReloadEvent(ReloadEvent event) {
 		reloadAction();
-	}
-	
-	@Subscribe
-	public void onSaveSearchEvent(SaveSearchEvent event) {
-		itemSaveSearch(event.pageTitle, event.pageData);
-		syncAdapters();
-		Toast.makeText(this, R.string.ToastSaveSearch, Toast.LENGTH_SHORT).show();
 	}
 	
 	@Subscribe
@@ -820,65 +783,10 @@ public class DuckDuckGo extends AppCompatActivity {
 	public void onShareWebPageEvent(ShareWebPageEvent event) {//web fragment
 		Sharer.shareWebPage(this, event.url, event.url);
 	}
-	
-	@Subscribe
-	public void onUnSaveSearchEvent(UnSaveSearchEvent event) {
-		final long delHistory = DDGApplication.getDB().deleteSavedSearch(event.query);
-		if(delHistory != 0) {							
-			syncAdapters();
-		}	
-		Toast.makeText(this, R.string.ToastUnSaveSearch, Toast.LENGTH_SHORT).show();
-	}
-	
-	@Subscribe
-	public void onHistoryItemSelected(HistoryItemSelectedEvent event) {
-        if( DDGControlVar.useExternalBrowser==DDGConstants.ALWAYS_INTERNAL) {
-            displayScreen(SCREEN.SCR_WEBVIEW, false);
-            BusProvider.getInstance().post(new WebViewShowHistoryObjectEvent(event.historyObject));
-        } else {
-            WebFragment webFragment = (WebFragment) fragmentManager.findFragmentByTag(WebFragment.TAG);
-            if(webFragment==null) {
-                webFragment = new WebFragment();
-            }
-            webFragment.setContext(this);
-            webFragment.showHistoryObject(event.historyObject);
-        }
-
-	}
-	
-	@Subscribe
-	public void onHistoryItemLongClick(HistoryItemLongClickEvent event) {
-        if(event.historyObject.isWebSearch()) {
-            new HistorySearchMenuDialog(this, event.historyObject).show();
-        }
-	}
-
-    @Subscribe
-    public void onSavedSearchItemSelected(SavedSearchItemSelectedEvent event) {
-        searchOrGoToUrl(event.query);
-        syncAdapters();
-    }
-
-	@Subscribe
-	public void onSavedSearchItemLongClick(SavedSearchItemLongClickEvent event) {
-		new SavedSearchMenuDialog(this, event.query).show();
-	}
-
-	@Subscribe
-	public void onRecentSearchPaste(RecentSearchPasteEvent event) {
-        getSearchField().pasteQuery(event.query);
-        keyboardService.showKeyboard(getSearchField());
-	}
 
     @Subscribe
 	public void onSuggestionPaste(SuggestionPasteEvent event) {
         getSearchField().pasteQuery(event.query);
-	}
-	
-	@Subscribe
-	public void onSavedSearchPaste(SavedSearchPasteEvent event) {
-        getSearchField().pasteQuery(event.query);
-        keyboardService.showKeyboard(getSearchField());
 	}
 
 	@Subscribe
@@ -904,10 +812,6 @@ public class DuckDuckGo extends AppCompatActivity {
     @Subscribe
     public void onConfirmDialogOkEvent(ConfirmDialogOkEvent event) {
         switch(event.action) {
-            case DDGConstants.CONFIRM_CLEAR_HISTORY:
-                DDGApplication.getDB().deleteHistory();
-                clearRecentSearch();
-                break;
             case DDGConstants.CONFIRM_CLEAR_COOKIES:
                 DDGWebView.clearCookies();
                 break;

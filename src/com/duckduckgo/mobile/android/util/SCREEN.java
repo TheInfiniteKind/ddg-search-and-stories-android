@@ -36,7 +36,7 @@ public enum SCREEN {
             case 9:
                 return SCR_SOURCES;*/
 			default:
-				return SCR_SEARCH_HOME_PAGE;//return SCR_STORIES;
+				return SCR_WEBVIEW;//return SCR_STORIES;
 		}	
 			
 	}

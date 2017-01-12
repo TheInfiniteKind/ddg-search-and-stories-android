@@ -112,15 +112,8 @@ public class PrefFragment extends PreferenceFragmentCompat implements SharedPref
     }
 
     @Override
-    public boolean onPreferenceClick(Preference preference) {/*
-        if(preference==sourcesPref) {
-            BusProvider.getInstance().post(new DisplayScreenEvent(SCREEN.SCR_SOURCES, false));
-            return true;
-        } else */if(preference==clearHistoryPref) {
-            ConfirmDialog dialog = ConfirmDialog.newInstance(getResources().getString(R.string.Confirm), getResources().getString(R.string.ConfirmClearHistory), DDGConstants.CONFIRM_CLEAR_HISTORY);
-            dialog.show(getFragmentManager(), ConfirmDialog.TAG);
-            return true;
-        } else if(preference==clearCookiesPref) {
+    public boolean onPreferenceClick(Preference preference) {
+        if(preference==clearCookiesPref) {
             ConfirmDialog dialog = ConfirmDialog.newInstance(getResources().getString(R.string.Confirm), getResources().getString(R.string.ConfirmClearCookies), DDGConstants.CONFIRM_CLEAR_COOKIES);
             dialog.show(getFragmentManager(), ConfirmDialog.TAG);
             return true;

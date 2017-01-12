@@ -142,16 +142,16 @@ public class PreferencesManager {
         }
         else if(key.equals("autocompletePref")){
             DDGControlVar.isAutocompleteActive = sharedPreferences.getBoolean(key, true);
-        }
+        }/*
         else if(key.equals("autoUpdatePref")){
             DDGControlVar.automaticFeedUpdate = sharedPreferences.getBoolean(key, true);
-        }
+        }*/
         else if(key.equals("recordCookiesPref")) {
             DDGWebView.recordCookies(sharedPreferences.getBoolean(key, true));
         }
     }
     
-    /* Collections */
+    /* Collections *//*
     public static String getReadArticles() {
 		return DDGApplication.getSharedPreferences().getString("readarticles", null);
 	}
@@ -163,7 +163,7 @@ public class PreferencesManager {
 			editor.putString("readarticles", combinedStringForReadArticles);
 			editor.commit();
     	}
-	}
+	}*/
     
     /* User sources */
     public static Set<String> getUserAllowedSources() {

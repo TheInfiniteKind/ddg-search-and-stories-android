@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.DownloadListener;
 
-import com.duckduckgo.mobile.android.DDGApplication;
 import com.duckduckgo.mobile.android.R;
 import com.duckduckgo.mobile.android.actionbar.DDGActionBarManager;
 import com.duckduckgo.mobile.android.activity.KeyboardService;
@@ -38,13 +36,9 @@ import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewOpenMenuEvent;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewReloadActionEvent;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewSearchOrGoToUrlEvent;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewSearchWebTermEvent;
-import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewShowHistoryObjectEvent;
-import com.duckduckgo.mobile.android.events.saveEvents.SaveSearchEvent;
-import com.duckduckgo.mobile.android.events.saveEvents.UnSaveSearchEvent;
 import com.duckduckgo.mobile.android.events.shareEvents.ShareSearchEvent;
 import com.duckduckgo.mobile.android.events.shareEvents.ShareWebPageEvent;
 import com.duckduckgo.mobile.android.network.DDGNetworkConstants;
-import com.duckduckgo.mobile.android.objects.history.HistoryObject;
 import com.duckduckgo.mobile.android.util.DDGConstants;
 import com.duckduckgo.mobile.android.util.DDGControlVar;
 import com.duckduckgo.mobile.android.util.DDGUtils;
@@ -203,7 +197,7 @@ public class WebFragment extends Fragment {
             MenuItem forwardItem = headerMenu.findItem(R.id.action_forward);
             backItem.setEnabled(mainWebView.canGoBack());
             forwardItem.setEnabled(mainWebView.canGoForward());
-        }
+        }/*
         if(menu==null) {
             return;
         }
@@ -243,7 +237,7 @@ public class WebFragment extends Fragment {
                 saveItem.setVisible(false);
                 deleteItem.setVisible(false);
                 break;
-        }
+        }*/
         webMenu = menu;
 	}
 
@@ -254,19 +248,19 @@ public class WebFragment extends Fragment {
             case R.id.action_reload:
                 actionReload();
                 overflowMenu.dismiss();
-                return true;
+                return true;/*
             case R.id.action_add_favorite:
                 actionSave();
                 return true;
             case R.id.action_remove_favorite:
                 actionDelete();
-                return true;
+                return true;*/
             case R.id.action_share:
 				actionShare();
-				return true;
+				return true;/*
             case R.id.action_external:
                 actionExternalBrowser();
-                return true;
+                return true;*/
             case R.id.action_back:
                 mainWebView.backPressAction(false);
                 newStates = new HashMap<Integer, Boolean>();
@@ -416,9 +410,6 @@ public class WebFragment extends Fragment {
 	public void searchWebTerm(String term) {
 		DDGControlVar.mDuckDuckGoContainer.sessionType = SESSIONTYPE.SESSION_SEARCH;
 
-		DDGApplication.getDB().insertRecentSearch(term);
-		//DDGControlVar.mDuckDuckGoContainer.historyAdapter.sync();
-
 		if(DDGControlVar.useExternalBrowser == DDGConstants.ALWAYS_EXTERNAL) {
 			DDGUtils.searchExternal(context, term);
 			return;
@@ -444,23 +435,6 @@ public class WebFragment extends Fragment {
                 }
                 mainWebView.loadUrl(baseUrl + URLEncoder.encode(term) + "&kl=" + URLEncoder.encode(DDGControlVar.regionString));
 			}
-		}
-	}
-
-	public void showHistoryObject(HistoryObject historyObject) {
-		if(historyObject.isWebSearch()) {
-			searchWebTerm(historyObject.getData());
-		}
-		else if(historyObject.isFeedObject()) {
-			DDGApplication.getDB().insertHistoryObject(historyObject);
-			//DDGControlVar.mDuckDuckGoContainer.historyAdapter.sync();
-			String feedId = historyObject.getFeedId();
-		}
-		else {
-			DDGApplication.getDB().insertHistoryObject(historyObject);
-			//DDGControlVar.mDuckDuckGoContainer.historyAdapter.sync();
-
-			showWebUrl(historyObject.getUrl());
 		}
 	}
 
@@ -530,34 +504,6 @@ public class WebFragment extends Fragment {
 			//mainWebView.reload();
 	}
 
-	private void actionSave() {
-		switch(urlType) {
-			case SERP:
-				String query = mainWebView.getUrl();
-				if(query==null) return;
-				BusProvider.getInstance().post(new SaveSearchEvent(DDGUtils.getQueryIfSerp(query)));
-				break;
-			case WEBPAGE:
-				String url = mainWebView.getUrl();
-				String title = mainWebView.getTitle();
-				if(url==null || url.equals("")) return;
-				if(title==null || title.equals("")) title = url;
-				BusProvider.getInstance().post(new SaveSearchEvent(title, url));
-				break;
-		}
-	}
-
-	private void actionDelete() {
-		switch(urlType) {
-			case SERP:
-				BusProvider.getInstance().post(new UnSaveSearchEvent(DDGUtils.getQueryIfSerp(mainWebView.getUrl())));
-				break;
-			case WEBPAGE:
-				BusProvider.getInstance().post(new UnSaveSearchEvent(mainWebView.getUrl()));
-				break;
-		}
-	}
-
     public void setContext(Context context) {
        if(this.context==null) {
            this.context = context;
@@ -588,11 +534,6 @@ public class WebFragment extends Fragment {
 	@Subscribe
 	public void onWebViewBackPressActionEvent(WebViewBackPressActionEvent event) {
 		mainWebView.backPressAction(true);
-	}
-
-	@Subscribe
-	public void onWebViewShowHistoryObjectEvent(WebViewShowHistoryObjectEvent event) {
-		showHistoryObject(event.historyObject);
 	}
 
 	@Subscribe

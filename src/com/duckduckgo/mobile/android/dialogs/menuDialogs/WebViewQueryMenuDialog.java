@@ -19,9 +19,8 @@ public final class WebViewQueryMenuDialog extends AlertDialog.Builder{
 		super(context);
 
         final String query = DDGUtils.getQueryIfSerp(webViewUrl);
-        final boolean isPageSaved = DDGApplication.getDB().isSavedSearch(query);
         final PageMenuContextAdapter contextAdapter  = new WebViewQueryMenuAdapter(context, android.R.layout.select_dialog_item, android.R.id.text1,
-                query, isPageSaved);
+                query);
 
         setTitle(R.string.SearchOptionsTitle);
         setAdapter(contextAdapter, new ExecuteActionOnClickListener(contextAdapter));

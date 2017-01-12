@@ -193,7 +193,8 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
 
                 setOverflowButton(true);
                 setOverflowButtonMarginTop(false);
-                setHomeButton(true);
+                //setHomeButton(true);
+                setBangButton();
                 setHomeButtonMarginTop(false);
 
                 setProgressBarVisible(true);
