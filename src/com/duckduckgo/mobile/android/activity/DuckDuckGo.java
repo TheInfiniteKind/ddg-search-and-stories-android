@@ -36,10 +36,8 @@ import com.duckduckgo.mobile.android.events.DisplayScreenEvent;
 import com.duckduckgo.mobile.android.events.ReloadEvent;
 import com.duckduckgo.mobile.android.events.RemoveWebFragmentEvent;
 import com.duckduckgo.mobile.android.events.RequestOpenWebPageEvent;
-import com.duckduckgo.mobile.android.events.RequestSyncAdaptersEvent;
 import com.duckduckgo.mobile.android.events.ShowAutoCompleteResultsEvent;
 import com.duckduckgo.mobile.android.events.StopActionEvent;
-import com.duckduckgo.mobile.android.events.SyncAdaptersEvent;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewBackPressActionEvent;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewClearCacheEvent;
 import com.duckduckgo.mobile.android.events.WebViewEvents.WebViewItemMenuClickEvent;
@@ -96,11 +94,6 @@ public class DuckDuckGo extends AppCompatActivity {
     private boolean newIntent = false;
 		
 	private final int PREFERENCES_RESULT = 0;
-    
-    public void syncAdapters() {
-    	//DDGControlVar.mDuckDuckGoContainer.historyAdapter.sync();
-    	BusProvider.getInstance().post(new SyncAdaptersEvent());
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -534,10 +527,10 @@ public class DuckDuckGo extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
+        switch(item.getItemId()) {/*
             case R.id.action_settings:
                 actionSettings();
-                return true;
+                return true;*/
             case R.id.action_help_feedback:
                 actionHelpFeedback();
                 return true;
@@ -594,18 +587,6 @@ public class DuckDuckGo extends AppCompatActivity {
 
 	public void searchOrGoToUrl(String text) {
 		searchOrGoToUrl(text, SESSIONTYPE.SESSION_BROWSE);
-	}
-
-	public void clearRecentSearch() {
-        BusProvider.getInstance().post(new SyncAdaptersEvent());
-	}
-
-	/**
-	 * Method that switches visibility of views for Home or Saved feed
-	 */
-	private void displayFeedCore() {		
-    	// main view visibility changes and keep feed updated
-    	DDGControlVar.mDuckDuckGoContainer.webviewShowing = false;
 	}
 
     private void changeFragment(Fragment newFragment, String newTag) {
@@ -690,10 +671,6 @@ public class DuckDuckGo extends AppCompatActivity {
                 if(clearWebCache){
 					BusProvider.getInstance().post(new WebViewClearCacheEvent());
                 }
-				boolean clearedHistory = data.getBooleanExtra("hasClearedHistory",false);
-				if(clearedHistory){
-					clearRecentSearch();
-				}
                 boolean startOrbotCheck = data.getBooleanExtra("startOrbotCheck",false);
                 if(startOrbotCheck){
                     searchOrGoToUrl(getString(R.string.OrbotCheckSite));
@@ -802,11 +779,6 @@ public class DuckDuckGo extends AppCompatActivity {
 	@Subscribe
 	public void onStopActionEvent(StopActionEvent event) {
 		stopAction();
-	}
-
-	@Subscribe
-	public void onRequestSyncAdaptersEvent(RequestSyncAdaptersEvent event) {
-		syncAdapters();
 	}
 
     @Subscribe

@@ -1,6 +1,5 @@
 package com.duckduckgo.mobile.android.fragment;
 
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.view.menu.MenuBuilder;
@@ -9,7 +8,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -18,7 +16,6 @@ import com.duckduckgo.mobile.android.bus.BusProvider;
 import com.duckduckgo.mobile.android.events.AutoCompleteResultClickEvent;
 import com.duckduckgo.mobile.android.events.OverflowButtonClickEvent;
 import com.duckduckgo.mobile.android.events.ShowAutoCompleteResultsEvent;
-import com.duckduckgo.mobile.android.events.SyncAdaptersEvent;
 import com.duckduckgo.mobile.android.util.DDGControlVar;
 import com.duckduckgo.mobile.android.views.DDGOverflowMenu;
 import com.squareup.otto.Subscribe;
@@ -119,11 +116,6 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
             showAutoCompleteResults(event.isVisible);
         }
 
-    }
-
-    @Subscribe
-    public void onSyncAdaptersEvent(SyncAdaptersEvent event) {
-        //syncAdapters();
     }
 
     public void showAutoCompleteResults(boolean visible) {
