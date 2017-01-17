@@ -1,6 +1,5 @@
 package com.duckduckgo.mobile.android.db;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -13,7 +12,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 
 import com.duckduckgo.mobile.android.DDGApplication;
-import com.duckduckgo.mobile.android.util.AppShortInfo;
 import com.duckduckgo.mobile.android.util.DDGUtils;
 
 public class DdgDB {
@@ -36,40 +34,6 @@ public class DdgDB {
 	      OpenHelper openHelper = new OpenHelper(context);
 	      this.db = openHelper.getWritableDatabase();
 	      this.insertStmtApp = this.db.compileStatement(APP_INSERT);
-	}
-	
-	public long insertApp(AppShortInfo appInfo) {
-	      this.insertStmtApp.bindString(1, appInfo.name);
-	      this.insertStmtApp.bindString(2, appInfo.packageName);
-	      long result = this.insertStmtApp.executeInsert();
-	      return result;
-	}
-	
-	public void deleteApps() {
-	      this.db.delete(DdgDBContracts.APP_TABLE.TABLE_NAME, null, null);
-	}
-	
-	private AppShortInfo getAppShortInfo(Cursor c) {
-		return new AppShortInfo(c.getString(0), c.getString(1));
-	}
-	
-	public ArrayList<AppShortInfo> selectApps(String title){
-		ArrayList<AppShortInfo> apps = null;
-		Cursor c = null;
-		try {
-			c = this.db.query(DdgDBContracts.APP_TABLE.TABLE_NAME, null, DdgDBContracts.APP_TABLE.COLUMN_TITLE + " MATCH ?", new String[]{title + "*"}, null, null, null);
-			if(c.moveToFirst()) {
-				apps = new ArrayList<AppShortInfo>(20);
-				do {
-					apps.add(getAppShortInfo(c));
-				} while(c.moveToNext());
-			}
-		} finally {
-			if(c!=null) {
-				c.close();
-			}
-		}
-		return apps;
 	}
 	
 	private static class OpenHelper extends SQLiteOpenHelper {

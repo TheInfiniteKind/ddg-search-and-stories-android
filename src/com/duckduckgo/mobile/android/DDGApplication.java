@@ -66,7 +66,7 @@ public class DDGApplication extends Application {
 	private void onUpgrade(int appVersionCode) {
 		// clear old sharedPreferences values, types can conflict (int -> float)
 		PreferencesManager.clearValues();
-		PreferencesManager.migrateAllowedSources();
+		//PreferencesManager.migrateAllowedSources();
 		PreferencesManager.saveAppVersionCode(appVersionCode);
 		fileCache.removeThrashOnMigration();
 	}

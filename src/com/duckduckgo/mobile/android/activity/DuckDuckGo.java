@@ -1,6 +1,7 @@
 package com.duckduckgo.mobile.android.activity;
 
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -19,6 +20,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.*;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebStorage;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -56,7 +58,6 @@ import com.duckduckgo.mobile.android.fragment.PrefFragment;
 import com.duckduckgo.mobile.android.fragment.SearchFragment;
 import com.duckduckgo.mobile.android.fragment.WebFragment;
 import com.duckduckgo.mobile.android.objects.SuggestObject;
-import com.duckduckgo.mobile.android.tasks.ScanAppsTask;
 import com.duckduckgo.mobile.android.util.AppStateManager;
 import com.duckduckgo.mobile.android.util.DDGConstants;
 import com.duckduckgo.mobile.android.util.DDGControlVar;
@@ -173,7 +174,8 @@ public class DuckDuckGo extends AppCompatActivity {
 
 		if(savedInstanceState==null) {
 			displayHomeScreen();
-		}
+            keyboardService.showKeyboard(getSearchField());
+        }
 
         // global search intent
         Intent intent = getIntent();
@@ -192,6 +194,8 @@ public class DuckDuckGo extends AppCompatActivity {
                             DDGActionBarManager.getInstance().clearSearchBar();
                         }
                     }
+                    keyboardService.hideKeyboard(textView);
+                    return true;
                 }
                 return false;
             }
@@ -203,13 +207,13 @@ public class DuckDuckGo extends AppCompatActivity {
                 if(hasFocus) {
                     int stackSize= fragmentManager.getBackStackEntryCount();
                     String tag = stackSize > 0? fragmentManager.getBackStackEntryAt(stackSize - 1).getName() : "";
-                    Fragment f = fragmentManager.findFragmentByTag(tag);
+                    Fragment f = fragmentManager.findFragmentByTag(tag);/*
                     if(f!= null && (f.getTag().equals(SearchFragment.TAG) || f.getTag().equals(SearchFragment.TAG_HOME_PAGE))) {
                         Log.d(TAG, "on focus change listener, DO NOT display search");
                     } else {
                         Log.d(TAG, "on focus change listener, MUST display search");
                         displayScreen(SCREEN.SCR_SEARCH, true);
-                    }
+                    }*/
                 }
             }
         });
@@ -255,9 +259,9 @@ public class DuckDuckGo extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 getSearchField().setCompoundDrawables(null, null, getSearchField().getText().toString().equals("") ? null : DDGControlVar.mDuckDuckGoContainer.stopDrawable, null);
 
-                if(isFragmentVisible(SearchFragment.TAG) || isFragmentVisible(SearchFragment.TAG_HOME_PAGE)) {
+                /*if(isFragmentVisible(SearchFragment.TAG) || isFragmentVisible(SearchFragment.TAG_HOME_PAGE)) {
                     BusProvider.getInstance().post(new ShowAutoCompleteResultsEvent(s.length() > 0));
-                }
+                }*/
                 if(DDGControlVar.isAutocompleteActive) {
                     DDGControlVar.mDuckDuckGoContainer.acAdapter.getFilter().filter(s);
                 }
@@ -326,7 +330,7 @@ public class DuckDuckGo extends AppCompatActivity {
             case SCR_WEBVIEW:
                 fragment = new WebFragment();
                 tag = WebFragment.TAG;
-                break;
+                break;/*
             case SCR_SEARCH:
                 fragment = new SearchFragment();
                 tag = SearchFragment.TAG;
@@ -337,7 +341,7 @@ public class DuckDuckGo extends AppCompatActivity {
                 fragment = new SearchFragment();
                 tag = SearchFragment.TAG_HOME_PAGE;
 
-                break;
+                break;*/
             case SCR_ABOUT:
 
                 fragment = new AboutFragment();
@@ -394,21 +398,31 @@ public class DuckDuckGo extends AppCompatActivity {
             if(!getSearchField().getText().toString().equals("")) {
                 DDGActionBarManager.getInstance().clearSearchBar();
             }
-            if(!DDGControlVar.mDuckDuckGoContainer.currentFragmentTag.equals(SearchFragment.TAG)
-                    && !DDGControlVar.mDuckDuckGoContainer.currentFragmentTag.equals(SearchFragment.TAG_HOME_PAGE)) {
-                displayScreen(SCREEN.SCR_SEARCH, true);
+            WebFragment fragment = (WebFragment) fragmentManager.findFragmentByTag(WebFragment.TAG);
+            if(fragment == null || !fragment.isVisible()) {
+                displayScreen(SCREEN.SCR_WEBVIEW, true);
+                boolean clearWebView = fragment.hasActiveSession();
+                if(clearWebView) fragment.clearWebView();
             }
+            keyboardService.showKeyboardDelayed(getSearchField());
         }
         else if(Intent.ACTION_VIEW.equals(intent.getAction())) {
             searchOrGoToUrl(intent.getDataString());
         }
         else if(Intent.ACTION_ASSIST.equals(intent.getAction())){
-            if(!DDGControlVar.mDuckDuckGoContainer.currentFragmentTag.equals(SearchFragment.TAG)
-                    && !DDGControlVar.mDuckDuckGoContainer.currentFragmentTag.equals(SearchFragment.TAG_HOME_PAGE)) {
-                displayScreen(SCREEN.SCR_SEARCH, true);
+            if(!getSearchField().getText().toString().equals("")) {
+                DDGActionBarManager.getInstance().clearSearchBar();
             }
+
+            WebFragment fragment = (WebFragment) fragmentManager.findFragmentByTag(WebFragment.TAG);
+            if(fragment == null || !fragment.isVisible()) {
+                displayScreen(SCREEN.SCR_WEBVIEW, true);
+                boolean clearWebView = fragment.hasActiveSession();
+                if(clearWebView) fragment.clearWebView();
+            }
+            keyboardService.showKeyboardDelayed(getSearchField());
         }
-        else if(DDGControlVar.mDuckDuckGoContainer.webviewShowing){
+        else if(DDGControlVar.mDuckDuckGoContainer.webviewShowing) {
             Fragment fragment = fragmentManager.findFragmentByTag(WebFragment.TAG);
             if(fragmentManager.findFragmentByTag(WebFragment.TAG)== null || !fragment.isVisible()) {
                 displayScreen(SCREEN.SCR_WEBVIEW, false);
@@ -438,16 +452,6 @@ public class DuckDuckGo extends AppCompatActivity {
         Log.d(TAG, "on resume");
 		
         DDGUtils.displayStats.refreshStats(this);
-
-		if(DDGControlVar.includeAppsInSearch && !DDGControlVar.hasAppsIndexed) {
-			// index installed apps
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-               new ScanAppsTask(getApplicationContext()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            } else {
-                new ScanAppsTask(getApplicationContext()).execute();
-            }
-			DDGControlVar.hasAppsIndexed = true;
-		}
     }
 
     @Override
@@ -492,10 +496,22 @@ public class DuckDuckGo extends AppCompatActivity {
 	@Override
 	public void onBackPressed() {
         backPressed = true;
+        WebFragment webFragment = (WebFragment) getSupportFragmentManager().findFragmentByTag(WebFragment.TAG);
+        /*
         if((DDGControlVar.mDuckDuckGoContainer.currentScreen == SCREEN.SCR_WEBVIEW
 				|| DDGControlVar.mDuckDuckGoContainer.webviewShowing || isFragmentVisible(WebFragment.TAG))) {
 			BusProvider.getInstance().post(new WebViewBackPressActionEvent());
-		}
+		}*/
+        if(DDGControlVar.mDuckDuckGoContainer.currentScreen == SCREEN.SCR_WEBVIEW
+                && webFragment != null
+                && isFragmentVisible(WebFragment.TAG)) {
+            //super.onBackPressed();
+            if(webFragment.canGoBack()) {
+                BusProvider.getInstance().post(new WebViewBackPressActionEvent());
+            } else {
+                finish();
+            }
+        }
         else if(fragmentManager.getBackStackEntryCount()==1) {
             finish();
         }
@@ -600,11 +616,11 @@ public class DuckDuckGo extends AppCompatActivity {
             return;
         }
 
-        Fragment searchFragment = fragmentManager.findFragmentByTag(SearchFragment.TAG);
+        //Fragment searchFragment = fragmentManager.findFragmentByTag(SearchFragment.TAG);
 
         boolean backState = true;
 
-        if(!newTag.equals(SearchFragment.TAG)) {
+        //if(!newTag.equals(SearchFragment.TAG)) {
             if(!isFinishing() && canCommitFragmentSafely) {
                 backState = fragmentManager.popBackStackImmediate(newTag, 0);
             }
@@ -623,21 +639,21 @@ public class DuckDuckGo extends AppCompatActivity {
                     fragmentManager.executePendingTransactions();
                 }
             }
-        }
+        //}
 
 
 
-        if(newTag.equals(SearchFragment.TAG) || (!backState && fragmentManager.findFragmentByTag(newTag)==null)) {
+        if(/*newTag.equals(SearchFragment.TAG) || */(!backState && fragmentManager.findFragmentByTag(newTag)==null)) {
             final Fragment currentFragment = fragmentManager.findFragmentByTag(DDGControlVar.mDuckDuckGoContainer.currentFragmentTag);
 
             FragmentTransaction transaction = fragmentManager.beginTransaction();
             Fragment f = fragmentManager.findFragmentByTag(newTag);
             if(newTag.equals(WebFragment.TAG) || newTag.equals(AboutFragment.TAG  )) {
-                transaction.setCustomAnimations(R.anim.slide_in_from_right, R.anim.empty, R.anim.empty, R.anim.slide_out_to_right);
+                //transaction.setCustomAnimations(R.anim.slide_in_from_right, R.anim.empty, R.anim.empty, R.anim.slide_out_to_right);
             } else if(newTag.equals(PrefFragment.TAG) || newTag.equals(HelpFeedbackFragment.TAG)) {
                 transaction.setCustomAnimations(R.anim.slide_in_from_bottom2, R.anim.empty, R.anim.empty, R.anim.slide_out_to_bottom2);
-            } else if(newTag.equals(SearchFragment.TAG)) {
-                transaction.setCustomAnimations(R.anim.slide_in_from_bottom2, R.anim.empty, R.anim.empty, R.anim.slide_out_to_bottom2);
+            //} else if(newTag.equals(SearchFragment.TAG)) {
+                //transaction.setCustomAnimations(R.anim.slide_in_from_bottom2, R.anim.empty, R.anim.empty, R.anim.slide_out_to_bottom2);
             } else {
                 transaction.setCustomAnimations(R.anim.empty_immediate, R.anim.empty, R.anim.empty_immediate, R.anim.empty_immediate);
             }

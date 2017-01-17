@@ -130,6 +130,7 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
                 stopProgress();
                 setProgressBarVisible(false);
                 getSearchField().addBang();
+                keyboardService.showKeyboard(getSearchField());
                 break;
             case R.id.overflow:
                 if(tag.equals(WebFragment.TAG)) {
@@ -164,6 +165,7 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
         SCREEN screen = DDGUtils.getScreenByTag(tag);
 
         boolean isStartingScreen = DDGControlVar.START_SCREEN==screen;
+        /*
         if(!tag.equals(SearchFragment.TAG)) {
             Fragment searchFragment = fragmentManager.findFragmentByTag(SearchFragment.TAG);
             if(searchFragment==null || !searchFragment.isVisible()) {
@@ -173,7 +175,7 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
                 getSearchField().setFocusable(true);
                 getSearchField().setFocusableInTouchMode(true);
             }
-        }
+        }*/
 
         int standardMargin = (int) context.getResources().getDimension(R.dimen.actionbar_margin);
         int overflowVisibleRightMargin = 0;
@@ -198,7 +200,8 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
                 setHomeButtonMarginTop(false);
 
                 setProgressBarVisible(true);
-                break;
+                toggleProgressBarVisibility(false, false);
+                break;/*
             case SCR_SEARCH:
             case SCR_SEARCH_HOME_PAGE:
                 showSearchField();
@@ -209,7 +212,7 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
                 setOverflowButtonMarginTop(false);
                 setBangButton();
                 setProgressBarVisible(false);
-                break;
+                break;*/
             case SCR_ABOUT:
                 showTitle(tag, context.getResources().getString(R.string.about));
                 setOverflowButton(false);
@@ -236,14 +239,14 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
                 break;
             default:
                 break;
-        }
+        }/*
 
         if(backPressed || DDGControlVar.mDuckDuckGoContainer.prevFragmentTag.equals(SearchFragment.TAG)
                 || DDGControlVar.mDuckDuckGoContainer.prevFragmentTag.equals(SearchFragment.TAG_HOME_PAGE)) {
             keyboardService.hideKeyboardDelayed(searchField);
         } else if((tag.equals(SearchFragment.TAG) || tag.equals(SearchFragment.TAG_HOME_PAGE))) {
             keyboardService.showKeyboard(searchField);
-        }
+        }*/
     }
 
     public void clearSearchBar() {
@@ -442,8 +445,8 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
         }
 
         if(DDGControlVar.homeScreenShowing) {
-            DDGControlVar.mDuckDuckGoContainer.currentUrl = "";
-            return;
+            //DDGControlVar.mDuckDuckGoContainer.currentUrl = "";
+            //return;
         }
 
         DDGControlVar.mDuckDuckGoContainer.currentUrl = text;

@@ -1,20 +1,11 @@
 package com.duckduckgo.mobile.android.views.autocomplete;
 
 import android.content.Context;
-import android.support.v7.view.ActionMode;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewParent;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
-import android.widget.Toast;
-
-import com.squareup.otto.Subscribe;
 
 public class DDGAutoCompleteTextView extends EditText implements View.OnLongClickListener {
 
@@ -61,12 +52,9 @@ public class DDGAutoCompleteTextView extends EditText implements View.OnLongClic
 
     public void addBang() {
 		if(isCursorAtEnd() && !lastCharIsSpaceOrNull()){
-            Log.e("aaa", "add bang 1");
             getText().insert(getSelectionStart(), " !");
-		}else{
-            Log.e("aaa", "add bang 2");
+		} else {
 			getText().replace(getSelectionStart(), getSelectionEnd(), "!");
-			//setSelection(getSelectionStart());//fix 1
             setSelection(getSelectionEnd());
 		}
 	}

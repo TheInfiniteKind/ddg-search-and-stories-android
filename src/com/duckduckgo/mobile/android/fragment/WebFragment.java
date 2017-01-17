@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.view.menu.MenuBuilder;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -197,47 +196,7 @@ public class WebFragment extends Fragment {
             MenuItem forwardItem = headerMenu.findItem(R.id.action_forward);
             backItem.setEnabled(mainWebView.canGoBack());
             forwardItem.setEnabled(mainWebView.canGoForward());
-        }/*
-        if(menu==null) {
-            return;
         }
-        //MenuItem reloadItem = menu.findItem(R.id.action_reload);
-        //reloadItem.setVisible(true);
-        MenuItem saveItem = menu.findItem(R.id.action_add_favorite);
-        MenuItem deleteItem = menu.findItem(R.id.action_remove_favorite);
-        switch(urlType) {
-            case SERP:
-                String webViewUrl = mainWebView.getUrl();
-                if(webViewUrl==null) {
-                    webViewUrl = "";
-                }
-                String query = DDGUtils.getQueryIfSerp(webViewUrl);
-                if(DDGApplication.getDB().isSavedSearch(query)) {
-                    saveItem.setVisible(false);
-                    deleteItem.setVisible(true);
-                } else {
-                    saveItem.setVisible(true);
-                    deleteItem.setVisible(false);
-                }
-                break;
-            case WEBPAGE:
-				String url = mainWebView.getUrl();
-				if(url==null) {
-					url = "";
-				}
-				if(DDGApplication.getDB().isSavedSearch(url)) {
-					saveItem.setVisible(false);
-					deleteItem.setVisible(true);
-				} else {
-					saveItem.setVisible(true);
-					deleteItem.setVisible(false);
-				}
-				break;
-            default:
-                saveItem.setVisible(false);
-                deleteItem.setVisible(false);
-                break;
-        }*/
         webMenu = menu;
 	}
 
@@ -248,13 +207,7 @@ public class WebFragment extends Fragment {
             case R.id.action_reload:
                 actionReload();
                 overflowMenu.dismiss();
-                return true;/*
-            case R.id.action_add_favorite:
-                actionSave();
                 return true;
-            case R.id.action_remove_favorite:
-                actionDelete();
-                return true;*/
             case R.id.action_share:
 				actionShare();
 				return true;/*
@@ -286,7 +239,6 @@ public class WebFragment extends Fragment {
 		keyboardService = new KeyboardService(getActivity());
 		mainWebView = (DDGWebView) fragmentView.findViewById(R.id.fragmentMainWebView);
 		mainWebView.getSettings().setJavaScriptEnabled(PreferencesManager.getEnableJavascript());
-        Log.e("javascript_enabled", PreferencesManager.getEnableJavascript()+"");
         DDGWebView.recordCookies(PreferencesManager.getRecordCookies());
 		DDGNetworkConstants.setWebView(mainWebView);
 
@@ -312,6 +264,7 @@ public class WebFragment extends Fragment {
 
         //temporary fix until next appcompat release
         //https://code.google.com/p/android/issues/detail?id=80434
+		//todo remove his
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR2) {
             mainWebView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -338,7 +291,7 @@ public class WebFragment extends Fragment {
             if(args.containsKey(SESSION_TYPE)) sessionType = SESSIONTYPE.getByCode(args.getInt(SESSION_TYPE));
 
             if(url!=null) {
-                searchOrGoToUrl(url, sessionType);
+                //searchOrGoToUrl(url, sessionType);
             }
         }
 	}
@@ -408,6 +361,7 @@ public class WebFragment extends Fragment {
 	}
 
 	public void searchWebTerm(String term) {
+        //Log.e("load_url", "search web term");
 		DDGControlVar.mDuckDuckGoContainer.sessionType = SESSIONTYPE.SESSION_SEARCH;
 
 		if(DDGControlVar.useExternalBrowser == DDGConstants.ALWAYS_EXTERNAL) {
@@ -456,9 +410,19 @@ public class WebFragment extends Fragment {
 		}
 	}
 
+    public boolean hasActiveSession() {
+        return mainWebView != null && mainWebView.copyBackForwardList().getSize() > 0;
+    }
+
+    public void clearWebView() {
+        mainWebView.clearBrowserState();
+    }
+
+	public boolean canGoBack() {
+        return mainWebView.canGoBack();
+    }
+
 	private void handleShareButtonClick() {
-		// XXX should make Page Options button disabled if the page is not loaded yet
-		// url = null case
 		String webViewUrl = mainWebView.getUrl();
 		if(webViewUrl == null){
 			webViewUrl = "";
@@ -500,8 +464,6 @@ public class WebFragment extends Fragment {
 
 	private void actionReload() {
 		mainWebView.reload();
-		//if(!mainWebView.isReadable)
-			//mainWebView.reload();
 	}
 
     public void setContext(Context context) {

@@ -22,8 +22,8 @@ import com.squareup.otto.Subscribe;
 
 public class SearchFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
-    public static final String TAG = "search_fragment";
-    public static final String TAG_HOME_PAGE = "search_fragment_home_page";
+    //public static final String TAG = "search_fragment";
+    //public static final String TAG_HOME_PAGE = "search_fragment_home_page";
 
     private ListView autoCompleteResultListView;
 

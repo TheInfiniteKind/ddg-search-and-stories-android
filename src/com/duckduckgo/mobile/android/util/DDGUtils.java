@@ -263,31 +263,6 @@ public final class DDGUtils {
 		  return output;
 	  }
 	  
-	  public static List<AppShortInfo> getInstalledComponents(Context context) {
-		  final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-		  mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-		  mainIntent.removeCategory(Intent.CATEGORY_TEST);
-		  final List<ResolveInfo> pkgAppsList = context.getPackageManager().queryIntentActivities( mainIntent, 0);		 
-		  
-		  HashSet<String> packageNameSet = new HashSet<String>();
-		  
-		  ArrayList<AppShortInfo> labels = new ArrayList<AppShortInfo>();
-//		  Log.v("APP","al: ...start...");
-		  for(ResolveInfo rInfo : pkgAppsList) {
-			  String packageName = rInfo.activityInfo.packageName;
-				  String label = "";
-				  label += rInfo.loadLabel(context.getPackageManager());
-				  if(!packageNameSet.contains(label + "-" + packageName)) {
-//				  	  Log.v("APP", "al: " + label + " " + packageName);
-					  labels.add(new AppShortInfo(label, packageName));
-					  packageNameSet.add(label + "-" + packageName);
-				  }
-		  }
-//		  Log.v("APP","al: ...end...");
-		  
-		  return labels;
-	  }
-	  
 	  public static void launchApp(Context context, String packageName) {
 			Intent mIntent = context.getPackageManager().getLaunchIntentForPackage(
 					packageName);
@@ -433,17 +408,17 @@ public final class DDGUtils {
 
     public static SCREEN getScreenByTag(String tag) {
         if(tag.equals(WebFragment.TAG)) {
-            return SCREEN.SCR_WEBVIEW;
+            return SCREEN.SCR_WEBVIEW;/*
         } else if(tag.equals(SearchFragment.TAG)) {
-            return SCREEN.SCR_SEARCH;
+            return SCREEN.SCR_SEARCH;*/
         } else if(tag.equals(AboutFragment.TAG)) {
             return SCREEN.SCR_ABOUT;
         } else if(tag.equals(HelpFeedbackFragment.TAG)) {
             return SCREEN.SCR_HELP;
         } else if(tag.equals(PrefFragment.TAG)) {
-            return SCREEN.SCR_SETTINGS;
+            return SCREEN.SCR_SETTINGS;/*
         } else  if(tag.equals(SearchFragment.TAG_HOME_PAGE)) {
-            return SCREEN.SCR_SEARCH_HOME_PAGE;
+            return SCREEN.SCR_SEARCH_HOME_PAGE;*/
         }
 		return SCREEN.SCR_WEBVIEW;
     }
@@ -451,17 +426,17 @@ public final class DDGUtils {
     public static String getTagByScreen(SCREEN screen) {
         switch(screen) {
             case SCR_WEBVIEW:
-                return WebFragment.TAG;
+                return WebFragment.TAG;/*
             case SCR_SEARCH:
-                return SearchFragment.TAG;
+                return SearchFragment.TAG;*/
             case SCR_ABOUT:
                 return AboutFragment.TAG;
             case SCR_HELP:
                 return HelpFeedbackFragment.TAG;
             case SCR_SETTINGS:
-                return PrefFragment.TAG;
+                return PrefFragment.TAG;/*
             case SCR_SEARCH_HOME_PAGE:
-                return SearchFragment.TAG_HOME_PAGE;
+                return SearchFragment.TAG_HOME_PAGE;*/
             default:
 				return WebFragment.TAG;
         }

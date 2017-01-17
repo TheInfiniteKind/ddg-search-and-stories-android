@@ -122,7 +122,7 @@ public class DDGWebView extends WebView {
 
     @Override
     public void loadUrl(String url) {
-        if(url==null) {
+		if(url==null) {
             return;
         }
         setUserAgentString(url);

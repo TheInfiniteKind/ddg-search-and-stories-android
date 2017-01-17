@@ -133,10 +133,10 @@ public class PreferencesManager {
     	else if(key.equals("regionPref")){
             DDGControlVar.regionString = sharedPreferences.getString(key, "wt-wt");
             Log.e("aaa", "control var is: "+DDGControlVar.regionString);
-        }
+        }/*
         else if(key.equals("appSearchPref")){
             DDGControlVar.includeAppsInSearch = sharedPreferences.getBoolean(key, false);
-        }
+        }*/
         else if(key.equals("useExternalBrowserPref")){
             DDGControlVar.useExternalBrowser = Integer.valueOf(sharedPreferences.getString(key, "0"));
         }

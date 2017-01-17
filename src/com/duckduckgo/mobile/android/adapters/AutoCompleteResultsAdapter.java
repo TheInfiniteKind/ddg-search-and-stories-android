@@ -25,7 +25,6 @@ import com.duckduckgo.mobile.android.image.transformations.ScaleWidthTransformat
 import com.duckduckgo.mobile.android.network.DDGHttpException;
 import com.duckduckgo.mobile.android.network.DDGNetworkConstants;
 import com.duckduckgo.mobile.android.objects.SuggestObject;
-import com.duckduckgo.mobile.android.util.AppShortInfo;
 import com.duckduckgo.mobile.android.util.DDGConstants;
 import com.duckduckgo.mobile.android.util.DDGControlVar;
 import com.squareup.picasso.Picasso;
@@ -186,19 +185,6 @@ public class AutoCompleteResultsAdapter extends ArrayAdapter<SuggestObject> impl
                 if (constraint != null) {
                     //TODO: Check if this constraint is already in the cache
                     JSONArray json = getJSONResultForConstraint(constraint);
-                    // also search in apps
-                    if(DDGControlVar.includeAppsInSearch) {
-                        Context context = getContext();
-                        ArrayList<AppShortInfo> appResults = DDGApplication.getDB().selectApps(constraint.toString());
-                        if(appResults != null) {
-                            for(AppShortInfo appInfo : appResults) {
-                                SuggestObject item = new SuggestObject(appInfo.name, appInfo.packageName, context);
-                                if (item != null) {
-                                    newResults.add(item);
-                                }
-                            }
-                        }
-                    }
 
                     for (int i = 0; i < json.length(); i++) {
                         try {
