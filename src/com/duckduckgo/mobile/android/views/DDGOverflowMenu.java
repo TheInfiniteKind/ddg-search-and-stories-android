@@ -185,11 +185,6 @@ public class DDGOverflowMenu extends PopupWindow implements View.OnClickListener
         }
     }
 
-    public void showCentered(View anchor) {
-        setWidth(getMaxWidth(context, overflowAdapter));
-        showAtLocation(anchor, Gravity.CENTER, 0, 0);
-    }
-
     @Override
     public void dismiss() {
         unregisterBus();
@@ -237,28 +232,6 @@ public class DDGOverflowMenu extends PopupWindow implements View.OnClickListener
         int menuPadding = (int) context.getResources().getDimension(R.dimen.menu_padding) * 2;
         return width + menuPadding;
 
-    }
-
-    public static int getWidestView(Context context, Adapter adapter) {
-        int maxWidth = 0;
-        View view = null;
-        FrameLayout fakeParent = new FrameLayout(context);
-        for (int i=0, count=adapter.getCount(); i<count; i++) {
-            view = adapter.getView(i, view, fakeParent);
-            view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-            int width = view.getMeasuredWidth();
-            if (width > maxWidth) {
-                maxWidth = width;
-            }
-        }
-        return maxWidth;
-    }
-
-    private int getStatusBarHeight() {
-        Rect rect = new Rect();
-        Window window = ((DuckDuckGo)context).getWindow();
-        window.getDecorView().getWindowVisibleDisplayFrame(rect);
-        return rect.top;
     }
 
     @Subscribe

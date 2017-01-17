@@ -210,10 +210,7 @@ public class WebFragment extends Fragment {
                 return true;
             case R.id.action_share:
 				actionShare();
-				return true;/*
-            case R.id.action_external:
-                actionExternalBrowser();
-                return true;*/
+				return true;
             case R.id.action_back:
                 mainWebView.backPressAction(false);
                 newStates = new HashMap<Integer, Boolean>();
@@ -227,9 +224,7 @@ public class WebFragment extends Fragment {
                 newStates.put(R.id.action_back, mainWebView.canGoBack());
                 newStates.put(R.id.action_forward, mainWebView.canGoForward());
                 BusProvider.getInstance().post(new WebViewUpdateMenuNavigationEvent(newStates));
-                return true;/*
-            case R.id.action_close:
-                overflowMenu.dismiss();*/
+                return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
@@ -361,7 +356,6 @@ public class WebFragment extends Fragment {
 	}
 
 	public void searchWebTerm(String term) {
-        //Log.e("load_url", "search web term");
 		DDGControlVar.mDuckDuckGoContainer.sessionType = SESSIONTYPE.SESSION_SEARCH;
 
 		if(DDGControlVar.useExternalBrowser == DDGConstants.ALWAYS_EXTERNAL) {

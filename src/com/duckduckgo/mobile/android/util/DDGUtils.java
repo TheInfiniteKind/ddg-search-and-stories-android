@@ -308,38 +308,6 @@ public final class DDGUtils {
     public static boolean isSerpUrl(String url) {
         return url.contains("duckduckgo.com");
     }
-
-    /**
-		 * Read cached sources from file cache
-		 * 
-		 * @return Cached source set, if not readable from cache returns null
-		 */
-		static public Set<String> getCachedSources() {
-			String body = DDGApplication.getFileCache().getStringFromInternal(DDGConstants.SOURCE_JSON_PATH);
-			if(body == null)
-				return null;
-			
-			try {
-				JSONArray json = new JSONArray(body);
-				Set<String> cachedSources = new HashSet<String>();
-
-				for (int i = 0; i < json.length(); i++) {
-					JSONObject nextObj = json.getJSONObject(i);
-					if (nextObj != null) {
-						String id = nextObj.getString("id");
-
-						if(id != null && !id.equals("null")){
-							cachedSources.add(id);
-						}
-					}
-				}
-				
-				return cachedSources;
-				
-			} catch (JSONException e) {
-				return null;
-			}
-		}
 		
 	private static boolean isIntentSafe(Context context, Intent intent) {
 		// Verify it resolves
@@ -408,17 +376,13 @@ public final class DDGUtils {
 
     public static SCREEN getScreenByTag(String tag) {
         if(tag.equals(WebFragment.TAG)) {
-            return SCREEN.SCR_WEBVIEW;/*
-        } else if(tag.equals(SearchFragment.TAG)) {
-            return SCREEN.SCR_SEARCH;*/
+            return SCREEN.SCR_WEBVIEW;
         } else if(tag.equals(AboutFragment.TAG)) {
             return SCREEN.SCR_ABOUT;
         } else if(tag.equals(HelpFeedbackFragment.TAG)) {
             return SCREEN.SCR_HELP;
         } else if(tag.equals(PrefFragment.TAG)) {
-            return SCREEN.SCR_SETTINGS;/*
-        } else  if(tag.equals(SearchFragment.TAG_HOME_PAGE)) {
-            return SCREEN.SCR_SEARCH_HOME_PAGE;*/
+            return SCREEN.SCR_SETTINGS;
         }
 		return SCREEN.SCR_WEBVIEW;
     }
@@ -426,17 +390,13 @@ public final class DDGUtils {
     public static String getTagByScreen(SCREEN screen) {
         switch(screen) {
             case SCR_WEBVIEW:
-                return WebFragment.TAG;/*
-            case SCR_SEARCH:
-                return SearchFragment.TAG;*/
+                return WebFragment.TAG;
             case SCR_ABOUT:
                 return AboutFragment.TAG;
             case SCR_HELP:
                 return HelpFeedbackFragment.TAG;
             case SCR_SETTINGS:
-                return PrefFragment.TAG;/*
-            case SCR_SEARCH_HOME_PAGE:
-                return SearchFragment.TAG_HOME_PAGE;*/
+                return PrefFragment.TAG;
             default:
 				return WebFragment.TAG;
         }

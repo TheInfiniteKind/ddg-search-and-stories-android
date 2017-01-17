@@ -183,29 +183,7 @@ public class DDGWebViewClient extends WebViewClient {
 			return;
 		}
 		
-		//((DuckDuckGo)activity).getSearchField().setBackgroundDrawable(DDGControlVar.mDuckDuckGoContainer.searchFieldDrawable);//aaa
-		
-//		// This makes a little (X) to clear the search bar.
-//		mDuckDuckGoContainer.reloadDrawable.setBounds(0, 0, (int)Math.floor(mDuckDuckGoContainer.reloadDrawable.getIntrinsicWidth()/1.5), (int)Math.floor(mDuckDuckGoContainer.reloadDrawable.getIntrinsicHeight()/1.5));
-//        searchField.setCompoundDrawables(null, null, mDuckDuckGoContainer.reloadDrawable, null);
-		
 		DDGWebView wv = ((DDGWebView) view);
-		/*
-		if(wv.readableBackState) {
-			wv.readableBackState = false;
-			if(wv.canGoBack()) {
-				wv.loadingReadableBack = true;
-				wv.goBack();
-			}
-			else {
-				wv.shouldClearHistory = true;
-				wv.readableAction(DDGControlVar.currentFeedObject);
-			}
-		}
-		else if(wv.loadingReadableBack) {
-			wv.loadingReadableBack = false;
-			wv.readableAction(DDGControlVar.currentFeedObject);
-		}*/
 		
 		if(wv.shouldClearHistory) {
 			wv.clearHistory();

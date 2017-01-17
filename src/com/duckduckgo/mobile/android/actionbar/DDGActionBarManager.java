@@ -136,7 +136,7 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
                 if(tag.equals(WebFragment.TAG)) {
                     BusProvider.getInstance().post(new OverflowButtonClickEvent(toolbar));
                 } else {
-                    showMenu(tag);
+                    showMenu();
                 }
             default:
                 break;
@@ -158,24 +158,11 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
         }
     }
 
-    public void updateActionBar(FragmentManager fragmentManager, String tag, boolean backPressed) {
+    public void updateActionBar(String tag) {
         Log.d(TAG, "update actionbar: "+tag);
 
         this.tag = tag;
         SCREEN screen = DDGUtils.getScreenByTag(tag);
-
-        boolean isStartingScreen = DDGControlVar.START_SCREEN==screen;
-        /*
-        if(!tag.equals(SearchFragment.TAG)) {
-            Fragment searchFragment = fragmentManager.findFragmentByTag(SearchFragment.TAG);
-            if(searchFragment==null || !searchFragment.isVisible()) {
-
-                getSearchField().setFocusable(false);
-                getSearchField().setFocusableInTouchMode(false);
-                getSearchField().setFocusable(true);
-                getSearchField().setFocusableInTouchMode(true);
-            }
-        }*/
 
         int standardMargin = (int) context.getResources().getDimension(R.dimen.actionbar_margin);
         int overflowVisibleRightMargin = 0;
@@ -195,26 +182,14 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
 
                 setOverflowButton(true);
                 setOverflowButtonMarginTop(false);
-                //setHomeButton(true);
                 setBangButton();
                 setHomeButtonMarginTop(false);
 
                 setProgressBarVisible(true);
                 toggleProgressBarVisibility(false, false);
-                break;/*
-            case SCR_SEARCH:
-            case SCR_SEARCH_HOME_PAGE:
-                showSearchField();
-                rightMargin = overflowVisibleRightMargin;
-                setActionBarMargins(actionButtonVisibleLeftMargin, standardMargin, rightMargin, standardMargin);
-                setHomeButtonMarginTop(false);
-                setOverflowButton(true);
-                setOverflowButtonMarginTop(false);
-                setBangButton();
-                setProgressBarVisible(false);
-                break;*/
+                break;
             case SCR_ABOUT:
-                showTitle(tag, context.getResources().getString(R.string.about));
+                showTitle(context.getResources().getString(R.string.about));
                 setOverflowButton(false);
                 setOverflowButtonMarginTop(false);
                 setHomeButton(true);
@@ -222,7 +197,7 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
                 setProgressBarVisible(false);
                 break;
             case SCR_HELP:
-                showTitle(tag, context.getResources().getString(R.string.help_feedback));
+                showTitle(context.getResources().getString(R.string.help_feedback));
                 setOverflowButton(false);
                 setOverflowButtonMarginTop(false);
                 setHomeButton(true);
@@ -230,7 +205,7 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
                 setProgressBarVisible(false);
                 break;
             case SCR_SETTINGS:
-                showTitle(tag, context.getResources().getString(R.string.settings));
+                showTitle(context.getResources().getString(R.string.settings));
                 setOverflowButton(false);
                 setOverflowButtonMarginTop(false);
                 setHomeButton(true);
@@ -239,14 +214,7 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
                 break;
             default:
                 break;
-        }/*
-
-        if(backPressed || DDGControlVar.mDuckDuckGoContainer.prevFragmentTag.equals(SearchFragment.TAG)
-                || DDGControlVar.mDuckDuckGoContainer.prevFragmentTag.equals(SearchFragment.TAG_HOME_PAGE)) {
-            keyboardService.hideKeyboardDelayed(searchField);
-        } else if((tag.equals(SearchFragment.TAG) || tag.equals(SearchFragment.TAG_HOME_PAGE))) {
-            keyboardService.showKeyboard(searchField);
-        }*/
+        }
     }
 
     public void clearSearchBar() {
@@ -311,12 +279,12 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
         toggleActionBarView(true);
     }
 
-    private void showTitle(String tag, String title) {
+    private void showTitle(String title) {
         toggleActionBarView(false);
-        setTitle(tag, title);
+        setTitle(title);
     }
 
-    private void setTitle(String tag, String title) {
+    private void setTitle(String title) {
         actionBarTitle.setText(title);
     }
 
@@ -444,11 +412,6 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
             text = "";
         }
 
-        if(DDGControlVar.homeScreenShowing) {
-            //DDGControlVar.mDuckDuckGoContainer.currentUrl = "";
-            //return;
-        }
-
         DDGControlVar.mDuckDuckGoContainer.currentUrl = text;
 
         searchField.setFocusable(false);
@@ -464,7 +427,7 @@ public final class DDGActionBarManager implements View.OnClickListener, View.OnL
         DDGControlVar.mDuckDuckGoContainer.sessionType = SESSIONTYPE.SESSION_BROWSE;
     }
 
-    public void showMenu(String tag) {
+    public void showMenu() {
         overflowMenu = new DDGOverflowMenu(activity);
         overflowMenu.setMenu(mainMenu);
         overflowMenu.show(overflowButton);

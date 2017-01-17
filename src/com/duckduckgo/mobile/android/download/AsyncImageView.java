@@ -120,28 +120,4 @@ public class AsyncImageView extends ImageView {
             Picasso.with(getContext()).cancelRequest(this);
         }
     }
-/*
-    @Override
-    public void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
-        //Log.e("aaa", "Feed image on measure");
-        final int width;
-        final int height;
-        if(heightRatio!=0) {
-            //Log.e("aaa", "height ratio != 0: "+heightRatio);
-            width = MeasureSpec.getSize(widthMeasureSpec);
-            //float tempHeight = widthMeasureSpec * heightRatio;
-            height = (int) (width * heightRatio);
-            Log.e("aaa", "width: "+width+" - widthMeasureSpec: "+widthMeasureSpec);
-            Log.e("aaa", "height: "+height+" - heightMeasureSpec: "+heightMeasureSpec);
-            Log.e("aaa", "ratio: "+heightRatio);
-            setMeasuredDimension(width, height);
-        } else {
-            //Log.e("aaa", "height ratio ==0 ")
-            //width = widthMeasureSpec;
-            //height = heightMeasureSpec;
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        }
-        //super.onMeasure(width, height);
-    }
-*/
 }

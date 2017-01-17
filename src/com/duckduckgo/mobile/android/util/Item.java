@@ -24,10 +24,7 @@ public class Item {
     public String toString() {
         return text;
     }
-    /*
-    public static enum ItemType {
-    	SHARE, SAVE, EXTERNAL, UNSAVE, REFRESH, DELETE, READABILITY_ON, READABILITY_OFF
-    }*/
+
     public static enum ItemType {
         SAVE, UNSAVE, SHARE, EXTERNAL
     }

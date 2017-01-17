@@ -18,10 +18,6 @@ import com.duckduckgo.mobile.android.views.webview.DDGWebView;
 public class PreferencesManager {
 	
 	/* Settings */
-
-	public static String getThemeName() {
-		return DDGApplication.getSharedPreferences().getString("themePref", "DDGDark");
-	}
 	
 	/**
 	 * Returns active SCREEN by considering the Duck Mode checkbox
@@ -31,12 +27,9 @@ public class PreferencesManager {
         String startScreenCode = DDGApplication.getSharedPreferences().getString("startScreenPref", "0");
         return SCREEN.getByCode(Integer.valueOf(startScreenCode));
 	}
+
     public static String getRegion() {
 		return DDGApplication.getSharedPreferences().getString("regionPref", "wt-wt");
-	}
-	
-	public static boolean getReadable() {
-		return DDGApplication.getSharedPreferences().getBoolean("readablePref", true);
 	}
 	
 	public static boolean getEnableTor(){
@@ -67,10 +60,6 @@ public class PreferencesManager {
 	public static boolean getDirectQuery() {
 		return DDGApplication.getSharedPreferences().getBoolean("directQueryPref", true);
 	}
-	
-	public static boolean containsSourceSetSize() {
-		return DDGApplication.getSharedPreferences().contains("sourceset_size");
-	}
 
 	public static int getAppVersionCode() {
 		return DDGApplication.getSharedPreferences().getInt("appVersionCode", 0);
@@ -80,14 +69,6 @@ public class PreferencesManager {
 		Editor editor = DDGApplication.getSharedPreferences().edit();
 		editor.putInt("appVersionCode", appVersionCode);
 		editor.commit();
-	}
-	
-	public static boolean saveDefaultSources(Set<String> sources) {
-		return DDGUtils.saveSet(DDGApplication.getSharedPreferences(), sources, "defaultsources");
-	}
-	
-	public static Set<String> getDefaultSources() {
-		return DDGUtils.loadSet(DDGApplication.getSharedPreferences(), "defaultsources");
 	}
 	
 	public static void clearValues() {
@@ -102,29 +83,6 @@ public class PreferencesManager {
 		editor.commit();
 	}
 	
-	private static boolean shouldMigrateSources() {
-		return DDGApplication.getSharedPreferences().contains("sourceset_size");
-	}
-	
-	public static void migrateAllowedSources() {
-		SharedPreferences prefs = DDGApplication.getSharedPreferences();
-		if(PreferencesManager.shouldMigrateSources()) {
-			Set<String> oldAllowed = DDGUtils.loadSet(prefs, "sourceset");
-			DDGUtils.deleteSet(prefs, "sourceset");			
-			saveUserAllowedSources(oldAllowed);
-			
-			Set<String> cachedSources = DDGUtils.getCachedSources();
-			// XXX cachedSources is not expected to be null during a migration
-			// since before APP VERSION_CODE 43, source response is always cached 
-			if(cachedSources != null) {
-				Set<String> oldDisallowed = new HashSet<String>(cachedSources);
-				oldDisallowed.removeAll(oldAllowed);
-				saveUserDisallowedSources(oldDisallowed);
-			}
-			//sourcesWereMigratedRightNow = true;
-		}		
-	}
-	
 	/* Events */
     public static void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     	if(key.equals("startScreenPref")){
@@ -132,63 +90,15 @@ public class PreferencesManager {
         }
     	else if(key.equals("regionPref")){
             DDGControlVar.regionString = sharedPreferences.getString(key, "wt-wt");
-            Log.e("aaa", "control var is: "+DDGControlVar.regionString);
-        }/*
-        else if(key.equals("appSearchPref")){
-            DDGControlVar.includeAppsInSearch = sharedPreferences.getBoolean(key, false);
-        }*/
+        }
         else if(key.equals("useExternalBrowserPref")){
             DDGControlVar.useExternalBrowser = Integer.valueOf(sharedPreferences.getString(key, "0"));
         }
         else if(key.equals("autocompletePref")){
             DDGControlVar.isAutocompleteActive = sharedPreferences.getBoolean(key, true);
-        }/*
-        else if(key.equals("autoUpdatePref")){
-            DDGControlVar.automaticFeedUpdate = sharedPreferences.getBoolean(key, true);
-        }*/
+        }
         else if(key.equals("recordCookiesPref")) {
             DDGWebView.recordCookies(sharedPreferences.getBoolean(key, true));
         }
     }
-    
-    /* Collections *//*
-    public static String getReadArticles() {
-		return DDGApplication.getSharedPreferences().getString("readarticles", null);
-	}
-    
-    public static void saveReadArticles() {
-    	String combinedStringForReadArticles = ReadArticlesManager.getCombinedStringForReadArticles();
-    	if(combinedStringForReadArticles.length() != 0){
-	    	Editor editor = DDGApplication.getSharedPreferences().edit();
-			editor.putString("readarticles", combinedStringForReadArticles);
-			editor.commit();
-    	}
-	}*/
-    
-    /* User sources */
-    public static Set<String> getUserAllowedSources() {
-		return DDGUtils.loadSet(DDGApplication.getSharedPreferences(), "allowset");
-	}
-    
-    public static boolean saveUserAllowedSources(Set<String> userSources) {
-		return DDGUtils.saveSet(DDGApplication.getSharedPreferences(), userSources, "allowset");
-	}
-    
-    public static Set<String> getUserDisallowedSources() {
-		return DDGUtils.loadSet(DDGApplication.getSharedPreferences(), "disallowset");
-	}
-    
-    public static boolean saveUserDisallowedSources(Set<String> userSources) {
-		return DDGUtils.saveSet(DDGApplication.getSharedPreferences(), userSources, "disallowset");
-	}
-
-    public static boolean getAutomaticFeedUpdate() {
-      return DDGApplication.getSharedPreferences().getBoolean("autoUpdatePref", true);
-  }
-
-	public static void setAutomaticFeedUpdate(boolean automaticFeedUpdate) {
-			Editor editor = DDGApplication.getSharedPreferences().edit();
-			editor.putBoolean("autoUpdatePref", automaticFeedUpdate);
-			editor.commit();
-  }
 }

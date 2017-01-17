@@ -2,28 +2,21 @@ package com.duckduckgo.mobile.android;
 
 import android.app.Application;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
-import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.CookieSyncManager;
 
-import com.duckduckgo.mobile.android.db.DdgDB;
 import com.duckduckgo.mobile.android.download.FileCache;
 import com.duckduckgo.mobile.android.download.ImageCache;
 import com.duckduckgo.mobile.android.network.DDGNetworkConstants;
 import com.duckduckgo.mobile.android.util.DDGConstants;
 import com.duckduckgo.mobile.android.util.DDGControlVar;
-import com.duckduckgo.mobile.android.util.DDGUtils;
 import com.duckduckgo.mobile.android.util.PreferencesManager;
-import com.duckduckgo.mobile.android.util.SCREEN;
 import org.acra.ACRA;
-import org.acra.ACRAConfigurationException;
 import org.acra.ReportField;
 import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
@@ -51,11 +44,8 @@ public class DDGApplication extends Application {
 	private static final ImageCache imageCache = new ImageCache(null);
 	private static FileCache fileCache = null;
 	private static SharedPreferences sharedPreferences = null;
-	private static DdgDB db = null;
 
 	private static String DB_FOLDER_NAME = "database";
-
-    //private static boolean isReleaseBuild = false;
 	
 	/**
 	 * Changes after application upgrade
@@ -74,25 +64,12 @@ public class DDGApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-        //ACRA.init(this);
+        ACRA.init(this);
 		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        db = new DdgDB(this);
 		fileCache = new FileCache(this.getApplicationContext());
 		imageCache.setFileCache(fileCache);
         CookieSyncManager.createInstance(this);
-/*
-        try {
-            ApplicationInfo aInfo = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
-            if (aInfo.metaData != null) {
-                CharSequence val = aInfo.metaData.getString("DDGReleaseStatus");
-                if(val!=null) {
-                    isReleaseBuild = val.equals("release");
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-*/
+
 		try {
 			PackageInfo pInfo;
 			pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -113,29 +90,10 @@ public class DDGApplication extends Application {
 		}
 		DDGNetworkConstants.initialize(this);
 
-		// set Helvetica Neue Medium
-//		DDGConstants.TTF_HELVETICA_NEUE_MEDIUM = Typeface.createFromAsset(getAssets(), "fonts/HelveticaNeue_Medium.ttf");
-		//DDGConstants.TTF_ROBOTO_BOLD = Typeface.createFromAsset(getAssets(), "fonts/Roboto_Bold.ttf");
-		//DDGConstants.TTF_ROBOTO_MEDIUM = Typeface.createFromAsset(getAssets(), "fonts/Roboto_Medium.ttf");
 
 		DDGControlVar.START_SCREEN = PreferencesManager.getActiveStartScreen();
 		DDGControlVar.regionString = PreferencesManager.getRegion();
         DDGControlVar.useExternalBrowser = PreferencesManager.getUseExternalBrowser();
-		/*
-		DDGControlVar.defaultSources = PreferencesManager.getDefaultSources();
-		DDGControlVar.userAllowedSources = PreferencesManager.getUserAllowedSources();
-		DDGControlVar.userDisallowedSources = PreferencesManager.getUserDisallowedSources();
-
-		DDGControlVar.automaticFeedUpdate = PreferencesManager.getAutomaticFeedUpdate();
-
-		String strReadArticles = PreferencesManager.getReadArticles();
-		if(strReadArticles != null){
-			for(String strId : strReadArticles.split("-")){
-				if(strId != null && strId.length() != 0){
-					DDGControlVar.readArticles.add(strId);
-				}
-			}
-		}*/
 
 	}
 
@@ -151,15 +109,6 @@ public class DDGApplication extends Application {
 	public static FileCache getFileCache() {
 		return fileCache;
 	}
-	
-	public static DdgDB getDB() {
-		return db;
-	}
-
-	/*
-    public static boolean isIsReleaseBuild() {
-        return isReleaseBuild;
-    }*/
 	
 	// method overridden to put DB in database folder cleanable upon uninstall
 	@Override

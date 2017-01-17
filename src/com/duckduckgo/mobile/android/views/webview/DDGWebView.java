@@ -22,18 +22,9 @@ import com.duckduckgo.mobile.android.util.PreferencesManager;
 public class DDGWebView extends WebView {
 
     public static final String ABOUT_BLANK = "about:blank";
-    //public boolean isReadable = false;
-	//private boolean forceOriginalFormat = false;
-		
-	//private HashSet<String> readableList = new HashSet<String>();
 	
 	private DDGWebViewClient webViewClient = null;
 	private DDGWebChromeClient webChromeClient = null;
-	//private Activity activity;
-	
-	//public boolean readableBackState = false;
-    //public boolean readableForwardState = false;
-	//public boolean loadingReadableBack = false;
 	
 	public boolean shouldClearHistory = false;
 
@@ -65,12 +56,6 @@ public class DDGWebView extends WebView {
 	public DDGWebChromeClient getWebChromeClient() {
 		return webChromeClient;
 	}
-
-	/*
-	public void setIsReadable(boolean isReadable) {
-		this.isReadable = isReadable;
-	}
-	*/
 	
 	public void onWindowVisibilityChanged(int visibility)
 	       {super.onWindowVisibilityChanged(visibility);
@@ -127,61 +112,7 @@ public class DDGWebView extends WebView {
         }
         setUserAgentString(url);
         super.loadUrl(url);
-    }/*
-	
-	@Override
-	public WebBackForwardList saveState(Bundle outState) {
-		outState.putBoolean("isReadable", isReadable);
-		return super.saveState(outState);
-	}
-	
-	@Override
-	public WebBackForwardList restoreState(Bundle inState) {
-		isReadable = inState.getBoolean("isReadable");
-		return super.restoreState(inState);
-	}*//*
-
-	
-	public void readableAction(FeedObject feedObject) {
-		if(!isReadable)
-			setIsReadable(true);
-		readableList.add(feedObject.getUrl());
-		loadDataWithBaseURL(feedObject.getUrl(), feedObject.getHtml(), "text/html", "UTF-8", feedObject.getUrl());
-		forceOriginalFormat = false;
-//		clearHistory();
-	}
-	
-	public void readableActionBack(FeedObject feedObject) {
-		readableBackState = true;
-		goBack();
-	}
-
-    public void readableActonForward(FeedObject feedObject) {
-        readableForwardState = true;
-        goForward();
-    }*/
-	
-	/**
-	 * Whether original format of the web page is required (no readability)
-	 * @return true if original format is required, false otherwise 
-	 *//*
-	public boolean isOriginalRequired() {
-		return forceOriginalFormat;
-	}*//*
-	
-	public void clearReadabilityState() {
-		isReadable = false;
-		forceOriginalFormat = false;
-		
-		readableBackState = false;
-        readableForwardState = false;
-		loadingReadableBack = false;
-	}*//*
-	
-	public void forceOriginal() {
-		isReadable = false;
-		forceOriginalFormat = true;
-	}*/
+    }
 	
 	public void clearBrowserState() {		
 		stopLoading();
@@ -199,11 +130,6 @@ public class DDGWebView extends WebView {
     private void clearViewReliably() {
         loadUrl(ABOUT_BLANK);
     }
-
-	/*
-    public void setParentActivity(Activity activity) {
-		this.activity = activity;
-	}*/
 	
 	public void backPressAction(boolean toHomeScreen) {
 		WebBackForwardList history = copyBackForwardList();
@@ -220,17 +146,10 @@ public class DDGWebView extends WebView {
                     goBackOrForward(-2);
                     if(lastIndex > 0){
                         if(toHomeScreen)
-						BusProvider.getInstance().post(new RemoveWebFragmentEvent());//DisplayScreenEvent(DDGControlVar.mDuckDuckGoContainer.prevScreen, false));
+						BusProvider.getInstance().post(new RemoveWebFragmentEvent());
                     }
                     return;
-                }/*
-				if(readableList.contains(prevUrl) && canDoReadability(prevUrl) && DDGControlVar.currentFeedObject != null) {
-//					readableAction(activity.currentFeedObject);
-					readableActionBack(DDGControlVar.currentFeedObject);
-				}
-				else {
-					goBack();
-				}*/
+                }
 				goBack();
 			}
 			else {
@@ -238,7 +157,7 @@ public class DDGWebView extends WebView {
 			}
 		}
 		else if(toHomeScreen) {
-			BusProvider.getInstance().post(new RemoveWebFragmentEvent());//DisplayScreenEvent(DDGControlVar.mDuckDuckGoContainer.prevScreen, true));
+			BusProvider.getInstance().post(new RemoveWebFragmentEvent());
 			BusProvider.getInstance().post(new StopActionEvent());
 		}
 	}
@@ -259,14 +178,7 @@ public class DDGWebView extends WebView {
                 }
             }
         }
-    }/*
-
-	private boolean canDoReadability(String articleUrl) {
-		return PreferencesManager.getReadable() 
-				&& !isOriginalRequired()
-				&& articleUrl != null
-				&& articleUrl.length() != 0;
-	}*/
+    }
 
     public static void clearCookies() {
         CookieManager.getInstance().removeAllCookie();

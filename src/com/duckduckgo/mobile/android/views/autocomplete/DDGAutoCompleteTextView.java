@@ -14,17 +14,14 @@ public class DDGAutoCompleteTextView extends EditText implements View.OnLongClic
 
 	public DDGAutoCompleteTextView(Context context) {
 		super(context);
-        //this.setOnLongClickListener(this);
 	}
 
 	public DDGAutoCompleteTextView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-        //this.setOnLongClickListener(this);
 	}
 
 	public DDGAutoCompleteTextView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-        //this.setOnLongClickListener(this);
 	}
 
 	private BackButtonPressedEventListener backButtonPressedEventListener;
